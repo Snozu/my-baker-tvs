@@ -20,11 +20,11 @@ Make.com (webhook) para orquestar el envío y procesamiento de datos.
 
 Node.js v18 o superior
 
-npm o yarn
+npm
 
-Cuenta en Make.com con un webhook URL disponible
+Make.com con un webhook URL disponible
 
-(Opcional) API Key de OpenAI si extiendes la lógica en el servidor
+(Opcional) API Key de OpenAI 
 
 
 # Astro Starter Kit: Basics

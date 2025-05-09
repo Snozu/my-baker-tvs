@@ -1,3 +1,32 @@
+# My Biker TVS WebApp
+
+Una experiencia interactiva para My Biker TVS: un cuestionario paso a paso que integra captura de foto, flujo inmersivo y envío de respuestas a Make para generar y entregar contenido personalizado vía WhatsApp.
+
+
+## 🚀 Tecnologías
+
+Astro como framework estático con soporte para Islands Architecture.
+
+TypeScript en modo strict para seguridad de tipos.
+
+Tailwind CSS para un diseño utility-first y responsive.
+
+Preact en islas interactivas para manejar estado y eventos.
+
+Make.com (webhook) para orquestar el envío y procesamiento de datos.
+
+
+## ⚙️ Prerrequisitos
+
+Node.js v18 o superior
+
+npm o yarn
+
+Cuenta en Make.com con un webhook URL disponible
+
+(Opcional) API Key de OpenAI si extiendes la lógica en el servidor
+
+
 # Astro Starter Kit: Basics
 
 ```sh

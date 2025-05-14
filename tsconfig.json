@@ -1,5 +1,15 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
+  "compilerOptions": {
+    "jsx": "react-jsx",               // usar el nuevo runtime JSX
+    "jsxImportSource": "preact",      // marcar a Preact como origen del JSX
+    "types": ["preact", "vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "react": ["preact/compat"],
+      "react-dom": ["preact/compat"]
+    }
+  },
+  "include": [".astro/types.d.ts", "src/**/*"],
   "exclude": ["dist"]
 }

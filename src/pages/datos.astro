@@ -1,0 +1,102 @@
+---
+import MobileLayout from '../layouts/MobileLayout.astro';
+import "../styles/global.css";
+---
+<MobileLayout backgroundImage="/assets/background_formulario_datos.png">
+  <!-- Título -->
+  <h2 class="text-center text-[45px] font-normal text-white leading-tight mb-10">
+    Antes de<br />
+    empezar:
+  </h2>
+
+  <!-- Formulario -->
+  <form action="/question/1" method="get" class="w-full max-w-[320px] space-y-12">
+    <!-- Nombre -->
+    <div class="flex flex-col">
+      <label for="nombre" class="block text-white text-[22px] font-bold mb-4 text-center">
+        ¿Cuál es tu nombre?
+      </label>
+      <input
+        id="nombre"
+        name="nombre"
+        type="text"
+        placeholder="Escribe tu nombre"
+        class="
+          w-full h-12
+          bg-transparent
+          border border-white
+          placeholder-white placeholder-opacity-50
+          text-white
+          focus:outline-none focus:border-red-500
+          transition
+          px-2
+        "
+        required
+      />
+    </div>
+
+    <!-- Estado -->
+    <div class="flex flex-col">
+      <label for="estado" class="block text-white text-[22px] font-bold mb-4 text-center">
+        ¿De qué estado nos visitas?
+      </label>
+      <input
+        id="estado"
+        name="estado"
+        type="text"
+        placeholder="Ej. Nuevo León"
+        class="
+          w-full h-12
+          bg-transparent
+          border border-white
+          placeholder-white placeholder-opacity-50
+          text-white
+          focus:outline-none focus:border-red-500
+          transition
+          px-2
+        "
+        required
+      />
+    </div>
+
+    <!-- Teléfono -->
+    <div class="flex flex-col">
+      <label for="telefono" class="block text-white text-[22px] font-bold mb-4 text-center">
+        ¿A qué número podemos enviarte noticias de TVS?
+      </label>
+      <input
+        id="telefono"
+        name="telefono"
+        type="tel"
+        placeholder="(55) 1234-5678"
+        class="
+          w-full h-12
+          bg-transparent
+          border border-white
+          placeholder-white placeholder-opacity-50
+          text-white
+          focus:outline-none focus:border-red-500
+          transition
+          px-2
+        "
+        required
+      />
+    </div>
+
+    <!-- Botón -->
+    <div class="text-center mt-6">
+      <button
+        type="submit"
+        class="
+          inline-block w-full
+          px-8 py-3
+          bg-red-600 hover:bg-red-700
+          text-white text-lg font-bold tracking-wide
+          rounded-none transition
+        "
+      >
+        ¡Arranca!
+      </button>
+    </div>
+  </form>
+</MobileLayout>

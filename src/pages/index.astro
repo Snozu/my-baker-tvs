@@ -1,11 +1,21 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import QuestionLayout from '../layouts/QuestionLayout.astro';
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<QuestionLayout title="Descubre tu versión biker">
+  <div class="flex flex-col items-center justify-center w-full h-full py-8">
+    <h1 class="text-2xl font-bold mb-2 text-center">¡Descubre tu <span class="text-red-600">versión biker</span> con TVS!</h1>
+    
+    <p class="mb-6 text-center text-gray-700 px-4">
+      Llena este cuestionario y prepárate para verte como todo un rider.
+    </p>
+    
+    <a href="/datos" class="w-full max-w-xs bg-red-600 text-white py-3 rounded-lg text-center font-medium">
+      ¡Comenzar!
+    </a>
+    
+    <div class="flex items-center justify-center mt-8">
+      <img src="/assets/images/logos/tvs-logo.svg" alt="TVS Logo" class="h-10" />
+    </div>
+  </div>
+</QuestionLayout>

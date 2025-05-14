@@ -1,0 +1,40 @@
+---
+import QuestionnaireLayout from '../../layouts/QuestionnaireLayout.astro';
+---
+
+<QuestionnaireLayout 
+  slideNumber="06" 
+  title="Confirma tu" 
+  titleHighlight="foto" 
+  questionMark={false}
+>
+  <div class="flex flex-col items-center justify-center w-full">
+    <div class="relative w-64 h-64 bg-gray-300 rounded-full overflow-hidden mb-4 border-4 border-gray-400">
+      <!-- Aquí iría la foto capturada -->
+      <div class="absolute inset-0 flex items-center justify-center">
+        <img src="/assets/images/screens/slide06_confirm.jpg" alt="Foto capturada" class="w-full h-full object-cover" />
+      </div>
+    </div>
+    
+    <div class="flex flex-col w-full gap-3 mt-4">
+      <button class="w-full py-3 bg-red-600 text-white rounded-lg font-medium">
+        Usar esta foto
+      </button>
+      
+      <button class="w-full py-3 border border-black rounded-lg font-medium">
+        Tomar otra
+      </button>
+    </div>
+  </div>
+  
+  <div slot="footer" class="flex justify-between mt-4">
+    <a href="/question/camera" class="px-4 py-2 border border-black rounded-lg flex items-center">
+      <img src="/assets/icons/arrow-back.svg" alt="Atrás" class="w-4 h-4 mr-1" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22><path d=%22M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z%22/></svg>'" />
+      Anterior
+    </a>
+    <a href="/question/loading" class="px-4 py-2 bg-red-600 text-white rounded-lg flex items-center">
+      Siguiente
+      <img src="/assets/icons/arrow-next.svg" alt="Siguiente" class="w-4 h-4 ml-1" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22><path fill=%22white%22 d=%22M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z%22/></svg>'" />
+    </a>
+  </div>
+</QuestionnaireLayout>

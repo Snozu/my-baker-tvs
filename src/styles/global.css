@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fuente Gilroy Regular (peso 500) */
+@font-face {
+  font-family: 'Gilroy';
+  src: 
+    url('/assets/fonts/Gilroy-Regular.woff2') format('woff2'),
+    url('/assets/fonts/Gilroy-Regular.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+/* Fuente Gilroy Bold (peso 700) */
+@font-face {
+  font-family: 'Gilroy';
+  src: 
+    url('/assets/fonts/Gilroy-Bold.woff2') format('woff2'),
+    url('/assets/fonts/Gilroy-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+body {
+  @apply min-h-screen min-w-full text-black;
+  font-family: 'Gilroy', sans-serif;
+}
+
+
+.full-mobile {
+  @apply w-screen h-screen min-h-screen min-w-full flex flex-col items-center justify-center bg-gray-200;
+}
+
+.selection-btn {
+  @apply w-full flex items-center justify-start gap-3 px-4 py-3 rounded-lg border text-base font-medium transition-all;
+}
+
+.selection-btn-active {
+  @apply bg-red-600 text-white border-none;
+}
+
+.selection-btn-inactive {
+  @apply bg-transparent border-black text-black;
+}
+
+.img-option {
+  @apply w-16 h-16 object-contain rounded-md;
+}
+
+.question-title {
+  @apply text-center text-lg font-bold mb-6;
+}
+
+.bg-highlight {
+  @apply bg-red-600 text-white rounded p-2 my-2 text-xs;
+}
+@keyframes fade-in {
+  from { opacity: 0 }
+  to   { opacity: 1 }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}

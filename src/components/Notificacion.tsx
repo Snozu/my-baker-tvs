@@ -22,7 +22,8 @@ const MESSAGES: Record<string, string[]> = {
 };
 
 export default function Notificacion({ fieldName, options, nextUrl }: Props) {
-  const [selected, setSelected] = useState(options[0].id);
+  // Inicialmente ninguna opción seleccionada
+  const [selected, setSelected] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const handleChange = (id: string) => {
@@ -42,7 +43,7 @@ export default function Notificacion({ fieldName, options, nextUrl }: Props) {
       )}
 
       <form action={nextUrl} method="get" className="flex flex-col gap-8">
-        {options.map((opt, i) => (
+        {options.map((opt) => (
           <div key={opt.id} className="flex flex-col items-center space-y-2">
             <input
               type="radio"
@@ -52,7 +53,7 @@ export default function Notificacion({ fieldName, options, nextUrl }: Props) {
               checked={selected === opt.id}
               onChange={() => handleChange(opt.id)}
               className="peer sr-only"
-              required={i === 0}
+              required
             />
             <label
               htmlFor={opt.id}
@@ -77,6 +78,7 @@ export default function Notificacion({ fieldName, options, nextUrl }: Props) {
         <button
           type="submit"
           className="mt-6 w-full py-3 bg-red-600 text-white text-lg font-bold transition"
+          disabled={!selected}
         >
           Siguiente
         </button>

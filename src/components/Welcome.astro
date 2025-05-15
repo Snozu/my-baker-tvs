@@ -7,7 +7,7 @@ interface Props {
   subtitleHighlight?: string;
 }
 
-const { 
+const {
   title = "¡Descubre tu",
   titleHighlight = "versión biker",
   titleEnd = "con TVS!",
@@ -16,235 +16,262 @@ const {
 } = Astro.props;
 ---
 
-<div class="relative w-full h-screen overflow-hidden bg-black">
-  <!-- Imagen de fondo con el biker -->
-  <div class="absolute inset-0 w-full h-[80%]">
-    <img 
-      src="/assets/Start_img.png" 
-      alt="Biker TVS" 
-      class="w-full h-full object-cover"
-    />
-  </div>
+<!DOCTYPE html>
+<html lang="es" class="h-full m-0 p-0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#000000" />
+    <title>TVS - Descubre tu versión biker</title>
+    <style>
+      /* Reset básico para asegurar que no haya márgenes */
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background-color: #000;
+      }
+    </style>
+  </head>
+  <body class="h-full bg-black antialiased">
+    <!-- Contenedor principal - Asegura que el fondo sea negro y cubra toda la pantalla -->
+    <div class="relative w-full h-full overflow-hidden bg-black">
+      <!-- 1. Ajustar el recorte de la imagen de fondo - Limitada en altura -->
+      <div class="absolute inset-0 w-full h-[75%] z-0">
+        <img 
+          src="/assets/Start_img.png" 
+          alt="Biker TVS" 
+          class="w-full h-full object-cover object-left-center"
+          style="object-position: 10% 50%;"
+        />
+      </div>
 
-  <!-- Degradado entre imagen y bandera -->
-  <div class="absolute bottom-0 w-full h-[30%] bg-gradient-to-b from-transparent via-black/70 to-black"></div>
-
-  <!-- Bandera de carreras (checkered flag) -->
-  <div class="absolute bottom-0 w-full h-[20%] overflow-hidden">
-    <div class="checkered-pattern w-full h-full opacity-80"></div>
-  </div>
-
-  <!-- Márgenes laterales negros -->
-  <div class="absolute top-0 left-0 w-[10%] h-full bg-black"></div>
-  <div class="absolute top-0 right-0 w-[15%] h-full bg-black"></div>
-
-  <!-- Líneas rojas inclinadas -->
-  <div class="absolute top-0 left-[8%] w-[3px] h-full bg-red-600 transform -skew-x-12"></div>
-  <div class="absolute top-0 right-[13%] w-[3px] h-full bg-red-600 transform skew-x-12"></div>
-
-  <!-- Logo TVS -->
-  <div class="absolute top-6 left-6 z-20">
-    <img 
-      src="/assets/logo_tvs.png" 
-      alt="TVS Logo" 
-      class="w-20 h-auto"
-    />
-  </div>
-
-  <!-- Contenido principal -->
-  <div class="relative z-10 h-full flex flex-col justify-between px-8 py-12">
-    <!-- Título y subtítulo -->
-    <div class="mt-20">
-      <h1 class="text-white text-[42px] font-bold leading-tight">
-        {title}<br/>
-        <span class="italic">{titleHighlight}</span><br/>
-        <span>{titleEnd}</span>
-      </h1>
+      <!-- Degradado entre imagen y bandera - AUMENTADO PARA HACERLO MÁS NOTORIO -->
+      <div class="absolute top-[65%] w-full h-[15%] bg-gradient-to-b from-transparent via-black/80 to-black z-5"></div>
       
-      <p class="text-white text-[18px] mt-6 font-medium">
-        {subtitle}<br/>
-        <span class="text-red-600">{subtitleHighlight}</span>
-      </p>
-    </div>
+      <!-- Imagen de bandera - ahora comienza desde el 75% de altura -->
+      <img 
+        src="/assets/bandera.png" 
+        alt="bandera" 
+        class="absolute bottom-0 top-[75%] w-full h-[25%] object-cover z-0" 
+      />
 
-    <!-- Botón de swipe con casco -->
-    <div class="relative mb-8">
-      <div 
-        id="swipe-button"
-        class="flex items-center justify-center"
-      >
-        <!-- Contenedor del casco (draggable) -->
-        <div 
-          id="helmet-container"
-          class="relative z-20 cursor-pointer touch-none"
-        >
-          <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-            <img 
-              src="/assets/icons/casco.webp" 
-              alt="Casco" 
-              class="w-12 h-12"
-            />
-          </div>
+      <!-- Degradado oscuro SUTIL en la parte inferior de la bandera -->
+      <div class="absolute bottom-0 w-full h-[8%] bg-gradient-to-t from-black/40 to-transparent z-5"></div>
+
+      <!-- 4. Logo TVS reposicionado -->
+      <div class="absolute z-[20]" style="top: 27px; left: 22px;">
+        <img
+          src="/assets/logo_tvs.png"
+          alt="TVS Logo"
+          class="w-28 h-auto"
+        />
+      </div>
+
+      <!-- Contenido principal -->
+      <div class="relative z-[15] h-full flex flex-col">
+        <!-- 5. Título y subtítulo - MOVIDOS A MITAD INFERIOR -->
+        <div class="mt-[60vh] px-[22px]">
+          <h1 class="text-white">
+            <span class="text-[45px] font-medium leading-none block">{title}</span>
+            <span class="text-[45px] font-black italic leading-none block">{titleHighlight}</span>
+            <span class="text-[45px] font-medium leading-none">con </span><span class="text-[45px] font-black">TVS!</span>
+          </h1>
+          
+          <!-- 6. Subtítulo -->
+          <p class="text-[22px] leading-snug max-w-[320px] mt-4 text-white">
+            {subtitle}<br/>
+            <span class="text-red-600 font-bold">{subtitleHighlight}</span>
+          </p>
         </div>
 
-        <!-- Flechas rojas animadas -->
-        <div class="ml-4 flex items-center">
-          <div class="arrow-container">
-            <span class="arrow arrow-1">›</span>
-            <span class="arrow arrow-2">›</span>
-            <span class="arrow arrow-3">›</span>
+        <!-- Espaciador flexible -->
+        <div class="flex-1"></div>
+
+        <!-- Sección inferior -->
+        <div class="relative">
+          <!-- Track del swipe button - CENTRADO Y MEJORADO -->
+          <div class="relative pb-8 pt-4 z-20 flex justify-center">
+            <div 
+              id="swipe-container"
+              class="relative flex items-center justify-between w-full max-w-[320px] h-16 bg-neutral-800/70 rounded-full p-[8px] mx-auto"
+            >
+              <!-- Casco draggable - MÁS CENTRADO -->
+              <div 
+                id="helmet-draggable"
+                class="absolute left-[16px] z-10 cursor-pointer touch-none select-none"
+                style="transform: translateX(0);"
+              >
+                <img 
+                  src="/assets/icons/casco.webp" 
+                  alt="Casco" 
+                  class="w-[70px] h-[70px] transition-all duration-300"
+                />
+              </div>
+
+              <!-- Flechas reposicionadas - MÁS CENTRADAS -->
+              <div class="absolute right-[16px] flex items-center">
+                <span class="arrow arrow-1">›</span>
+                <span class="arrow arrow-2">›</span>
+                <span class="arrow arrow-3">›</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Feedback visual del swipe -->
-      <div 
-        id="swipe-feedback"
-        class="absolute inset-0 bg-red-600/20 rounded-full scale-0 transition-transform duration-300"
-      ></div>
     </div>
-  </div>
-</div>
 
-<style>
-  /* Patrón de bandera de carreras */
-  .checkered-pattern {
-    background-image: repeating-conic-gradient(
-      #000 0deg 90deg,
-      #333 90deg 180deg,
-      #000 180deg 270deg,
-      #333 270deg 360deg
-    );
-    background-size: 40px 40px;
-  }
-
-  /* Animación de las flechas */
-  .arrow-container {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .arrow {
-    font-size: 48px;
-    color: #dc2626;
-    font-weight: bold;
-    animation: pulse-arrow 1.5s ease-in-out infinite;
-  }
-
-  .arrow-1 {
-    animation-delay: 0s;
-  }
-
-  .arrow-2 {
-    animation-delay: 0.2s;
-  }
-
-  .arrow-3 {
-    animation-delay: 0.4s;
-  }
-
-  @keyframes pulse-arrow {
-    0%, 100% {
-      opacity: 0.3;
-      transform: translateX(0);
-    }
-    50% {
-      opacity: 1;
-      transform: translateX(4px);
-    }
-  }
-
-  /* Hover effects */
-  #helmet-container:hover {
-    transform: translateX(2px);
-  }
-
-  /* Active state */
-  #helmet-container:active {
-    transform: scale(0.95);
-  }
-</style>
-
-<script>
-  // Implementación del swipe nativo
-  const helmetContainer = document.getElementById('helmet-container');
-  const swipeFeedback = document.getElementById('swipe-feedback');
-  
-  let isDragging = false;
-  let startX = 0;
-  let currentX = 0;
-  let startTransform = 0;
-
-  function handleStart(e: TouchEvent | MouseEvent) {
-    isDragging = true;
-    startX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    startTransform = currentX;
-    
-    // Mostrar feedback visual
-    swipeFeedback?.classList.add('scale-100');
-  }
-
-  function handleMove(e: TouchEvent | MouseEvent) {
-    if (!isDragging) return;
-    
-    e.preventDefault();
-    const x = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    currentX = x - startX + startTransform;
-    
-    // Limitar el movimiento solo hacia la derecha
-    if (currentX > 0) {
-      helmetContainer!.style.transform = `translateX(${currentX}px)`;
-      
-      // Si se mueve más de 100px, activar la navegación
-      if (currentX > 100) {
-        handleSwipeComplete();
+    <style>
+      /* Animación de flechas */
+      .arrow {
+        font-size: 70px;
+        line-height: 0.8;
+        color: #dc2626;
+        font-weight: bold;
+        margin: 0 -8px;
+        animation: pulse-arrow 1.5s ease-in-out infinite;
       }
-    }
-  }
 
-  function handleEnd() {
-    if (!isDragging) return;
-    isDragging = false;
-    
-    // Ocultar feedback visual
-    swipeFeedback?.classList.remove('scale-100');
-    
-    // Si no se completó el swipe, volver a la posición inicial
-    if (currentX < 100) {
-      helmetContainer!.style.transform = 'translateX(0)';
-      currentX = 0;
-    }
-  }
+      .arrow-1 { animation-delay: 0s; }
+      .arrow-2 { animation-delay: 0.2s; }
+      .arrow-3 { animation-delay: 0.4s; }
 
-  function handleSwipeComplete() {
-    // Animar el casco hasta el final
-    helmetContainer!.style.transition = 'transform 0.3s ease-out';
-    helmetContainer!.style.transform = 'translateX(200px)';
-    
-    // Navegar después de la animación
-    setTimeout(() => {
-      window.location.href = '/datos';
-    }, 300);
-  }
+      @keyframes pulse-arrow {
+        0%, 100% { opacity: 0.3; transform: translateX(0); }
+        50% { opacity: 1; transform: translateX(4px); }
+      }
+      
+      /* Efecto de desvanecimiento para el casco durante el swipe */
+      .swipe-active {
+        opacity: 0.7;
+        transform: scale(0.95);
+      }
+    </style>
 
-  // Event listeners para touch
-  helmetContainer?.addEventListener('touchstart', handleStart, { passive: false });
-  helmetContainer?.addEventListener('touchmove', handleMove, { passive: false });
-  helmetContainer?.addEventListener('touchend', handleEnd);
+    <script>
+      // Implementación del swipe mejorada
+      const helmet = document.getElementById('helmet-draggable') as HTMLElement | null;
+      const container = document.getElementById('swipe-container') as HTMLElement | null;
 
-  // Event listeners para mouse (para desarrollo)
-  helmetContainer?.addEventListener('mousedown', handleStart);
-  window.addEventListener('mousemove', handleMove);
-  window.addEventListener('mouseup', handleEnd);
+      if (helmet && container) {
+        let isDragging = false;
+        let initialTouchX = 0;
+        let currentHelmetX = 0;
+        let containerWidth = 0;
+        let helmetWidth = 0;
+        let containerHorizontalPadding = 0;
+        let swipeCompletedFlag = false;
 
-  // Limpiar eventos al desmontar
-  window.addEventListener('beforeunload', () => {
-    helmetContainer?.removeEventListener('touchstart', handleStart);
-    helmetContainer?.removeEventListener('touchmove', handleMove);
-    helmetContainer?.removeEventListener('touchend', handleEnd);
-    helmetContainer?.removeEventListener('mousedown', handleStart);
-    window.removeEventListener('mousemove', handleMove);
-    window.removeEventListener('mouseup', handleEnd);
-  });
-</script>
+        function updateDimensions() {
+          if (!container || !helmet) return;
+          containerWidth = container.offsetWidth;
+          helmetWidth = helmet.offsetWidth;
+          const computedStyle = window.getComputedStyle(container);
+          containerHorizontalPadding = parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+        }
+
+        function getPointerX(e: TouchEvent | MouseEvent): number {
+          return 'touches' in e ? e.touches[0].clientX : e.clientX;
+        }
+
+        function handleStart(e: TouchEvent | MouseEvent) {
+          if (swipeCompletedFlag || !helmet || !container) return;
+          updateDimensions(); // Actualizar dimensiones al inicio de cada swipe
+          isDragging = true;
+          initialTouchX = getPointerX(e);
+          const transformMatrix = window.getComputedStyle(helmet).transform;
+          currentHelmetX = (transformMatrix && transformMatrix !== 'none') ? parseFloat(transformMatrix.split(',')[4]) || 0 : 0;
+          helmet.style.transition = 'none';
+        }
+
+        function handleMove(e: TouchEvent | MouseEvent) {
+          if (!isDragging || swipeCompletedFlag || !helmet || !container) return;
+
+          if (e.cancelable) e.preventDefault();
+          const x = getPointerX(e);
+          const deltaXFromInitialTouch = x - initialTouchX;
+          const maxTranslateX = containerWidth - helmetWidth - containerHorizontalPadding;
+          let newX = currentHelmetX + deltaXFromInitialTouch;
+          newX = Math.max(0, newX);
+          newX = Math.min(newX, maxTranslateX);
+          
+          // Aplicar transformación
+          helmet.style.transform = `translateX(${newX}px)`;
+          
+          // Aplicar efecto de desvanecimiento según la distancia recorrida
+          const progress = newX / maxTranslateX;
+          const img = helmet.querySelector('img');
+          if (img) {
+            img.style.opacity = (1 - progress * 0.5).toString(); // Desvanecimiento gradual
+          }
+          
+          if (newX >= maxTranslateX * 0.75) { // Umbral para completar: 75%
+            completeSwipe(maxTranslateX);
+          }
+        }
+
+        function handleEnd() {
+          if (swipeCompletedFlag || !isDragging || !helmet || !container) return;
+          isDragging = false;
+          const currentTransform = parseFloat(helmet.style.transform.replace('translateX(', '').replace('px)', '')) || 0;
+          const maxTranslateX = containerWidth - helmetWidth - containerHorizontalPadding;
+
+          if (currentTransform < maxTranslateX * 0.75) {
+            helmet.style.transition = 'transform 0.3s ease-out';
+            helmet.style.transform = 'translateX(0)';
+            // Restaurar la opacidad original
+            const img = helmet.querySelector('img');
+            if (img) {
+              img.style.opacity = '1';
+            }
+            setTimeout(() => {
+              if (helmet && !swipeCompletedFlag) helmet.style.transition = 'none';
+            }, 300);
+          }
+        }
+
+        function completeSwipe(maxTranslateX: number) {
+          if (swipeCompletedFlag || !helmet) return;
+          swipeCompletedFlag = true;
+          isDragging = false;
+          helmet.style.transition = 'transform 0.3s ease-out';
+          helmet.style.transform = `translateX(${maxTranslateX}px)`;
+          removeEventListeners();
+          setTimeout(() => {
+            window.location.href = '/datos';
+          }, 350);
+        }
+        
+        function addEventListeners(){
+          helmet?.addEventListener('touchstart', handleStart, { passive: false });
+          document.addEventListener('touchmove', handleMove, { passive: false });
+          document.addEventListener('touchend', handleEnd);
+          document.addEventListener('touchcancel', handleEnd);
+          helmet?.addEventListener('mousedown', handleStart);
+          document.addEventListener('mousemove', handleMove);
+          document.addEventListener('mouseup', handleEnd);
+        }
+
+        function removeEventListeners(){
+          helmet?.removeEventListener('touchstart', handleStart);
+          document.removeEventListener('touchmove', handleMove);
+          document.removeEventListener('touchend', handleEnd);
+          document.removeEventListener('touchcancel', handleEnd);
+          helmet?.removeEventListener('mousedown', handleStart);
+          document.removeEventListener('mousemove', handleMove);
+          document.removeEventListener('mouseup', handleEnd);
+        }
+
+        addEventListeners();
+        updateDimensions(); // Cargar dimensiones iniciales
+        window.addEventListener('resize', () => {
+            if(!swipeCompletedFlag) {
+              updateDimensions();
+            }
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -20,7 +20,8 @@ const {
 <html lang="es" class="h-full m-0 p-0">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+      <!-- MEJORADO: Meta viewport específico para móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
     <title>TVS - Descubre tu versión biker</title>
     <style>
@@ -72,17 +73,19 @@ const {
 
       <!-- Contenido principal -->
       <div class="relative z-[15] h-full flex flex-col">
-        <!-- 5. Título y subtítulo - MOVIDOS A MITAD INFERIOR -->
-        <div class="mt-[60vh] px-[22px]">
-          <h1 class="text-white">
-            <span class="text-[45px] font-medium leading-none block">{title}</span>
-            <span class="text-[45px] font-black italic leading-none block">{titleHighlight}</span>
-            <span class="text-[45px] font-medium leading-none">con </span><span class="text-[45px] font-black">TVS!</span>
+        <!-- 5. Título y subtítulo - RESPONSIVE -->
+        <div class="mt-[50vh] px-[5%] sm:px-[10%] md:px-[15%] w-full">
+          <h1 class="text-white text-center">
+            <span class="text-[38px] sm:text-[45px] font-medium leading-none block">{title}</span>
+            <span class="text-[38px] sm:text-[45px] font-black italic leading-none block">{titleHighlight}</span>
+            <span class="text-[38px] sm:text-[45px] font-medium leading-none">con </span><span class="text-[38px] sm:text-[45px] font-black">TVS!</span>
           </h1>
           
-          <!-- 6. Subtítulo -->
-          <p class="text-[22px] leading-snug max-w-[320px] mt-4 text-white">
-            {subtitle}<br/>
+          <!-- 6. Subtítulo - DIVIDIDO EN DOS PÁRRAFOS Y CENTRADO -->
+          <p class="text-[18px] sm:text-[22px] leading-snug max-w-[90%] sm:max-w-[320px] mt-4 text-white text-center mx-auto">
+            {subtitle}
+          </p>
+          <p class="text-[18px] sm:text-[22px] leading-snug max-w-[90%] sm:max-w-[320px] mt-2 text-center mx-auto">
             <span class="text-red-600 font-bold">{subtitleHighlight}</span>
           </p>
         </div>
@@ -92,13 +95,13 @@ const {
 
         <!-- Sección inferior -->
         <div class="relative">
-          <!-- Track del swipe button - CENTRADO Y MEJORADO -->
-          <div class="relative pb-8 pt-4 z-20 flex justify-center">
+          <!-- Track del swipe button - RESPONSIVE -->
+          <div class="relative pb-8 pt-4 z-20 flex justify-center w-full">
             <div 
               id="swipe-container"
-              class="relative flex items-center justify-between w-full max-w-[320px] h-16 bg-neutral-800/70 rounded-full p-[8px] mx-auto"
+              class="relative flex items-center justify-between w-[90%] max-w-[320px] h-16 bg-neutral-800/70 rounded-full p-[8px]"
             >
-              <!-- Casco draggable - MÁS CENTRADO -->
+              <!-- Casco draggable - CENTRADO VERTICALMENTE -->
               <div 
                 id="helmet-draggable"
                 class="absolute left-[16px] z-10 cursor-pointer touch-none select-none"
@@ -111,8 +114,8 @@ const {
                 />
               </div>
 
-              <!-- Flechas reposicionadas - MÁS CENTRADAS -->
-              <div class="absolute right-[16px] flex items-center">
+              <!-- Flechas reposicionadas - ALTURA IGUALADA AL CASCO -->
+              <div class="absolute right-[16px] top-1/2 transform -translate-y-1/2 flex items-center">
                 <span class="arrow arrow-1">›</span>
                 <span class="arrow arrow-2">›</span>
                 <span class="arrow arrow-3">›</span>
@@ -126,7 +129,7 @@ const {
     <style>
       /* Animación de flechas */
       .arrow {
-        font-size: 70px;
+        font-size: 85px; /* Aumentado para igualar altura del casco (70px) */
         line-height: 0.8;
         color: #dc2626;
         font-weight: bold;
@@ -166,10 +169,23 @@ const {
 
         function updateDimensions() {
           if (!container || !helmet) return;
-          containerWidth = container.offsetWidth;
-          helmetWidth = helmet.offsetWidth;
+          
+          // Actualización más precisa de dimensiones
+          containerWidth = container.getBoundingClientRect().width;
+          helmetWidth = helmet.getBoundingClientRect().width;
+          
+          // Obtener padding del contenedor
           const computedStyle = window.getComputedStyle(container);
           containerHorizontalPadding = parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+          
+          // Asegurar que el casco esté en la posición inicial si no está arrastrando
+          if (!isDragging && !swipeCompletedFlag) {
+            helmet.style.transform = 'translateX(0)';
+            const img = helmet.querySelector('img');
+            if (img) {
+              img.style.opacity = '1';
+            }
+          }
         }
 
         function getPointerX(e: TouchEvent | MouseEvent): number {
@@ -194,6 +210,8 @@ const {
           const deltaXFromInitialTouch = x - initialTouchX;
           const maxTranslateX = containerWidth - helmetWidth - containerHorizontalPadding;
           let newX = currentHelmetX + deltaXFromInitialTouch;
+          
+          // Limitar movimiento dentro de los límites
           newX = Math.max(0, newX);
           newX = Math.min(newX, maxTranslateX);
           
@@ -207,7 +225,9 @@ const {
             img.style.opacity = (1 - progress * 0.5).toString(); // Desvanecimiento gradual
           }
           
-          if (newX >= maxTranslateX * 0.75) { // Umbral para completar: 75%
+          // Umbral menor para dispositivos más pequeños
+          const swipeThreshold = window.innerWidth < 375 ? 0.65 : 0.75;
+          if (newX >= maxTranslateX * swipeThreshold) {
             completeSwipe(maxTranslateX);
           }
         }
@@ -218,7 +238,10 @@ const {
           const currentTransform = parseFloat(helmet.style.transform.replace('translateX(', '').replace('px)', '')) || 0;
           const maxTranslateX = containerWidth - helmetWidth - containerHorizontalPadding;
 
-          if (currentTransform < maxTranslateX * 0.75) {
+          // Umbral menor para dispositivos más pequeños
+          const swipeThreshold = window.innerWidth < 375 ? 0.65 : 0.75;
+          
+          if (currentTransform < maxTranslateX * swipeThreshold) {
             helmet.style.transition = 'transform 0.3s ease-out';
             helmet.style.transform = 'translateX(0)';
             // Restaurar la opacidad original

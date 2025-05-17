@@ -11,6 +11,27 @@ const options: Option[] = [
 ];
 ---
 <QuestionLayout title={`¿Qué tipo de <span class="text-red-600">aventurero</span><br>eres?`}>
-  <!-- client:load hidrata el componente Preact sólo en el navegador -->
-  <CreativeQuestion client:load fieldName="q2" {options} nextUrl="/question/3" />
+  <form
+    id="form-q2"
+    action="/question/camera"
+    method="get"
+    class="w-full flex flex-col gap-8 px-5"
+  >
+    <!-- Hidrata el componente Preact que muestra las opciones -->
+    <CreativeQuestion
+      client:load
+      fieldName="q2"
+      {options}
+      nextUrl="/question/camera"
+    />
+  </form>
 </QuestionLayout>
+
+<script>
+  // Al enviar, guardamos la respuesta en sessionStorage
+  const formQ2 = document.getElementById('form-q2');
+  formQ2.addEventListener('submit', () => {
+    const fd = new FormData(formQ2);
+    sessionStorage.setItem('q2', fd.get ('q2') || '')  ;
+  });
+</script>

@@ -16,11 +16,11 @@ const { backgroundImage } = Astro.props as Props;
       html, body { margin:0; padding:0; height:100%; width:100%; }
     </style>
   </head>
-  <body class="h-full w-full overflow-hidden bg-[#0e2034]">
+  <body class="h-full w-full overflow-hidden bg-[#000000]">
     {backgroundImage && (
       <div class="relative h-full w-full">
         <!-- 1. Color de respaldo (oscuro) -->
-        <div class="absolute inset-0 bg-[#0e2034]"></div>
+        <div class="absolute inset-0 bg-[#000000]"></div>
         <!-- 2. Tu PNG full-cover -->
         <img
           src={backgroundImage}

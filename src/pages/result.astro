@@ -1,10 +1,7 @@
 ---
-import ConfirmData from '../components/ConfirmData';
-
+import QuestionLayout from '../layouts/QuestionLayout.astro';
+import ResultPage from '../components/ResultPage';
 ---
-
-  <!-- Aquí mostramos los datos dinámicos -->
-  <ConfirmData client:load />
-
-
-
+<QuestionLayout>
+  <ResultPage client:load />
+</QuestionLayout>

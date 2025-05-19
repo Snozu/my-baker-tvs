@@ -1,6 +1,7 @@
 /** @jsxImportSource preact */
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
+import ShareModal from './ShareModal';
 
 interface Props {
   sessionId: string;
@@ -10,48 +11,46 @@ interface Props {
 
 export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props) {
   const [nombre, setNombre] = useState<string>('');
-  const [photo, setPhoto]   = useState<string>('');
-
+  const [photo, setPhoto] = useState<string>('');
+  // Nuevo estado para controlar la visibilidad del modal de compartir
+  const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
+  
   useEffect(() => {
     // Leemos nombre y foto desde sessionStorage
     setNombre(sessionStorage.getItem('nombre') || '');
-    setPhoto(sessionStorage.getItem('photo')    || '');
+    setPhoto(sessionStorage.getItem('photo') || '');
   }, []);
-
+  
   // Si ya tienes un resultUrl (hosteada), lo usas; si no, tiras de photo de sessionStorage
-  const displayUrl = resultUrl && resultUrl.length > 10 
-    ? resultUrl 
+  const displayUrl = resultUrl && resultUrl.length > 10
+    ? resultUrl
     : photo;
-
-  const title     = `¡Ser biker va contigo ${nombre}!`;
-  // const subtitle  = 'Tu tipo es muy';
+    
+  const title = `¡Ser biker va contigo ${nombre}!`;
+  // const subtitle = 'Tu tipo es muy';
   // const modelName = 'RONIN';
-  // const desc      = 'Libre como el viento y rebelde con causa.';
-
+  // const desc = 'Libre como el viento y rebelde con causa.';
+  
   const handleDownload = () => {
     const a = document.createElement('a');
     a.href = displayUrl;
     a.download = `mi_biker_${sessionId}.jpg`;
     a.click();
   };
-
-  const handleShareFacebook = () => {
-    const shareUrl = encodeURIComponent(pageUrl);
-    window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
-      'fbshare',
-      'width=600,height=400'
-    );
+  
+  // Función actualizada para abrir el modal de compartir
+  const handleShare = () => {
+    setIsShareModalOpen(true);
   };
-
+  
   if (!displayUrl) {
     return <p class="text-center text-lg mt-10">No hay imagen para mostrar.</p>;
   }
-
+  
   return (
     <div class="flex flex-col items-center px-6 space-y-6">
       <h1 class="text-center text-2xl font-semibold">{title}</h1>
-
+      
       <div class="relative w-full max-w-sm shadow-lg">
         <img
           src={displayUrl}
@@ -68,21 +67,22 @@ export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props
           </svg>
         </button>
       </div>
-
+      
       {/* <div class="w-full max-w-sm bg-black text-center py-4 space-y-1">
         <p class="text-white text-sm">{subtitle}</p>
         <p class="text-white text-xl font-bold">{modelName}</p>
         <p class="text-white text-sm">{desc}</p>
       </div> */}
-
+      
       <p class="text-center text-base">¡Que empiece la rodada a tu aventura!</p>
-
+      
       <div class="w-full max-w-sm flex flex-col space-y-4">
+        {/* Botón modificado para abrir el modal de compartir */}
         <button
-          onClick={handleShareFacebook}
+          onClick={handleShare}
           class="w-full py-3 bg-red-600 text-white font-medium rounded-none"
         >
-          Compartir en Facebook
+          Compartir
         </button>
         <button
           onClick={() => window.location.href = '/question/datos'}
@@ -91,11 +91,20 @@ export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props
           Hagámoslo otra vez
         </button>
       </div>
-
+      
       <p class="text-center text-sm mt-6 font-semibold">
         #MiBiker<span class="text-red-600">TVS</span>
       </p>
       <img src="/assets/icons/TVS_ICONO.png" alt="TVS Logo" class="h-8 mt-2" />
+      
+      {/* Modal de compartir (renderizado condicionalmente) */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        imageUrl={displayUrl}
+        pageUrl={window.location.href} // URL actual para compartir
+        title={title}
+      />
     </div>
   );
 }

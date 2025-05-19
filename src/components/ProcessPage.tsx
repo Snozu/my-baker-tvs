@@ -10,40 +10,39 @@ const LOADING_MESSAGES = [
 
 export default function ProcessPage() {
   const [status, setStatus] = useState<'loading' | 'completed' | 'error'>('loading');
-  const [resultUrl, setResultUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  // índice del mensaje actual
+  const [resultUrl, setResultUrl] = useState<string|null>(null);
+  const [error, setError] = useState<string|null>(null);
   const [msgIndex, setMsgIndex] = useState(0);
   const msgInterval = useRef<number>();
 
   useEffect(() => {
-    // cada 3s cambiamos al siguiente mensaje
+    // Rota mensajes cada 3s
     msgInterval.current = window.setInterval(() => {
-      setMsgIndex((i) => (i + 1) % LOADING_MESSAGES.length);
+      setMsgIndex(i => (i + 1) % LOADING_MESSAGES.length);
     }, 3000);
 
     let sessionId: string;
 
     const sendToMake = async () => {
       try {
-        // 1) Recuperar datos
         const form = new FormData();
-        ['nombre','telefono','estado','q1','q2'].forEach((k) => {
-          form.append(k, sessionStorage.getItem(k) || '');
-        });
-        const photoDataUrl = sessionStorage.getItem('photo');
-        if (photoDataUrl) {
-          const resp = await fetch(photoDataUrl);
-          form.append('photo', await resp.blob(), 'selfie.jpg');
-        }
+        // campos que guardaste en sessionStorage
+        ['nombre','estado','telefono','q1','q2'].forEach(k =>
+          form.append(k, sessionStorage.getItem(k) || '')
+        );
+        // foto
+        const dataUrl = sessionStorage.getItem('photo')!;
+        const blob = await (await fetch(dataUrl)).blob();
+        form.append('photo', blob, 'selfie.webp');
 
-        // 2) Enviar a Make
+        // 1) Envío al webhook
         const webhook = 'https://hook.us2.make.com/ie7cprxmog22liwjj293tomqtnx7ftkw';
         const res = await fetch(webhook, { method: 'POST', body: form });
         if (!res.ok) throw new Error(res.statusText);
-        const payload = await res.json();
+        const payload = await res.json() as { sessionId: string };
         sessionId = payload.sessionId;
+
+        // 2) Arranca polling
         pollResult();
       } catch (e: any) {
         clearInterval(msgInterval.current);
@@ -61,11 +60,12 @@ export default function ProcessPage() {
           setResultUrl(json.imageUrl);
           setStatus('completed');
         } else if (json.status === 'processing') {
+          // sigue esperando
           setTimeout(pollResult, 2000);
         } else {
           throw new Error('Estado inesperado');
         }
-      } catch (e) {
+      } catch {
         clearInterval(msgInterval.current);
         setError('Error obteniendo el resultado. Intenta más tarde.');
         setStatus('error');
@@ -73,22 +73,14 @@ export default function ProcessPage() {
     };
 
     sendToMake();
-
-    return () => {
-      clearInterval(msgInterval.current);
-    };
+    return () => { clearInterval(msgInterval.current); };
   }, []);
 
   if (status === 'loading') {
     return (
       <div class="flex flex-col items-center justify-center h-full gap-6">
-        {/* Mascota o ícono */}
         <img src="/assets/Biker_loading.png" alt="Biker generando" class="w-32 h-32 animate-pulse" />
-
-        {/* Mensaje rotatorio */}
-        <p class="text-white text-lg font-semibold">
-          {LOADING_MESSAGES[msgIndex]}
-        </p>
+        <p class="text-white text-lg font-semibold">{LOADING_MESSAGES[msgIndex]}</p>
       </div>
     );
   }
@@ -101,10 +93,14 @@ export default function ProcessPage() {
     );
   }
 
-  // status === 'completed'
+  // completed
   return (
     <div class="flex flex-col items-center justify-center h-full gap-6">
-      <img src={resultUrl!} alt="Resultado final" class="w-64 h-64 object-cover rounded-lg border-4 border-white" />
+      <img
+        src={resultUrl!}
+        alt="Resultado final"
+        class="w-64 h-64 object-cover rounded-lg border-4 border-white"
+      />
       <p class="text-white text-lg">¡Tu imagen está lista!</p>
     </div>
   );

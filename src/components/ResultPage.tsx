@@ -85,7 +85,7 @@ export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props
           Compartir en Facebook
         </button>
         <button
-          onClick={() => window.location.href = '/question/1'}
+          onClick={() => window.location.href = '/question/datos'}
           class="w-full py-3 border border-black text-black font-medium rounded-none"
         >
           Hagámoslo otra vez

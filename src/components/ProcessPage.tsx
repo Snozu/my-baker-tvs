@@ -9,99 +9,134 @@ const LOADING_MESSAGES = [
 ];
 
 export default function ProcessPage() {
-  const [status, setStatus] = useState<'loading' | 'completed' | 'error'>('loading');
-  const [resultUrl, setResultUrl] = useState<string|null>(null);
-  const [error, setError] = useState<string|null>(null);
+  const [status, setStatus] = useState<'loading' | 'completed'>('loading');
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [msgIndex, setMsgIndex] = useState(0);
   const msgInterval = useRef<number>();
 
   useEffect(() => {
-    // Rota mensajes cada 3s
+    // 1) Rota mensajes cada 3s
     msgInterval.current = window.setInterval(() => {
       setMsgIndex(i => (i + 1) % LOADING_MESSAGES.length);
     }, 3000);
 
-    let sessionId: string;
+    // 2) Reusa el sessionId si ya existe, o genera uno nuevo
+    const sessionId =
+      sessionStorage.getItem('sessionId') ??
+      crypto.randomUUID();
+    sessionStorage.setItem('sessionId', sessionId);
 
+    // 3) Función que envía al webhook de Make
     const sendToMake = async () => {
       try {
         const form = new FormData();
-        // campos que guardaste en sessionStorage
-        ['nombre','estado','telefono','q1','q2'].forEach(k =>
-          form.append(k, sessionStorage.getItem(k) || '')
-        );
-        // foto
+        form.append('sessionId', sessionId);
+        ['nombre','estado','telefono','q1','q2'].forEach(k => {
+          form.append(k, sessionStorage.getItem(k) || '');
+        });
+        // Foto comprimida en sessionStorage
         const dataUrl = sessionStorage.getItem('photo')!;
         const blob = await (await fetch(dataUrl)).blob();
-        form.append('photo', blob, 'selfie.webp');
+        form.append('photo', blob, 'selfie.png');
 
-        // 1) Envío al webhook
-        const webhook = 'https://hook.us2.make.com/ie7cprxmog22liwjj293tomqtnx7ftkw';
-        const res = await fetch(webhook, { method: 'POST', body: form });
-        if (!res.ok) throw new Error(res.statusText);
-        const payload = await res.json() as { sessionId: string };
-        sessionId = payload.sessionId;
-
-        // 2) Arranca polling
-        pollResult();
-      } catch (e: any) {
-        clearInterval(msgInterval.current);
-        setError('No se pudo enviar tus datos. Intenta de nuevo.');
-        setStatus('error');
+        console.log('🔜 Enviando a Make con sessionId', sessionId);
+        const res = await fetch(
+          'https://hook.us2.make.com/ie7cprxmog22liwjj293tomqtnx7ftkw',
+          { method: 'POST', body: form }
+        );
+        console.log('Webhook response status:', res.status, await res.text());
+      } catch (e) {
+        console.error('Error en sendToMake:', e);
       }
     };
 
-    const pollResult = async () => {
+    // 4) Función para hacer UN SOLO intento de polling
+    const checkStatus = async () => {
       try {
-        const res = await fetch(`/api/getResult?sessionId=${sessionId}`);
-        const json = await res.json() as { status: string; imageUrl?: string };
+        const res = await fetch(`/api/status/${sessionId}`);
+        if (!res.ok) throw new Error('Error en respuesta');
+        const json = await res.json();
+
         if (json.status === 'completed' && json.imageUrl) {
-          clearInterval(msgInterval.current);
+          // Guardar URL y preparar redirección
+          sessionStorage.setItem('resultUrl', json.imageUrl);
           setResultUrl(json.imageUrl);
           setStatus('completed');
-        } else if (json.status === 'processing') {
-          // sigue esperando
-          setTimeout(pollResult, 2000);
-        } else {
-          throw new Error('Estado inesperado');
+          
+          // Transición suave
+          const container = document.querySelector('body');
+          if (container) {
+            container.style.transition = 'opacity 0.5s ease-out';
+            container.style.opacity = '0';
+          }
+          
+          // Redirigir después de la transición
+          setTimeout(() => {
+            console.log('Redirigiendo a resultados...');
+            window.location.href = '/result';
+          }, 600);
         }
-      } catch {
-        clearInterval(msgInterval.current);
-        setError('Error obteniendo el resultado. Intenta más tarde.');
-        setStatus('error');
+      } catch (e) {
+        console.error('Error en polling:', e);
       }
     };
 
+    // 5) Enviar a Make inmediatamente
+    console.log('Enviando datos a Make...');
     sendToMake();
-    return () => { clearInterval(msgInterval.current); };
+
+    // 6) Programar EXACTAMENTE 3 intentos de polling
+    console.log('Programando 3 intentos de polling...');
+    setTimeout(() => {
+      console.log('Primer intento (28s)');
+      checkStatus();
+    }, 28000);
+
+    setTimeout(() => {
+      console.log('Segundo intento (36s)');
+      checkStatus();
+    }, 36000);
+
+    setTimeout(() => {
+      console.log('Tercer y último intento (44s)');
+      checkStatus();
+    }, 44000);
+    
+    // Limpiar intervalo de mensajes al desmontar
+    return () => {
+      clearInterval(msgInterval.current);
+    };
+
+
+
+    return () => {
+      clearInterval(msgInterval.current);
+    };
   }, []);
 
+  // UI
   if (status === 'loading') {
     return (
-      <div class="flex flex-col items-center justify-center h-full gap-6">
-        <img src="/assets/Biker_loading.png" alt="Biker generando" class="w-32 h-32 animate-pulse" />
-        <p class="text-white text-lg font-semibold">{LOADING_MESSAGES[msgIndex]}</p>
-      </div>
-    );
-  }
-
-  if (status === 'error') {
-    return (
-      <div class="flex flex-col items-center justify-center h-full p-4">
-        <p class="text-red-500 text-center">{error}</p>
-      </div>
+      <div class="flex flex-col items-center justify-center h-full gap-6 bg-black text-white">
+        <img
+          src="/assets/Biker_loading.png"
+          alt="Cargando"
+          class="w-32 h-32 animate-pulse"
+          style={{ imageRendering: 'auto' }} // Mejora la calidad de renderizado
+        />
+        <p class="text-lg font-semibold">{LOADING_MESSAGES[msgIndex]}</p>
+        <p class="text-sm text-gray-400 max-w-xs text-center">Espera mientras generamos tu imagen personalizada...</p>      </div>
     );
   }
 
   // completed
   return (
-    <div class="flex flex-col items-center justify-center h-full gap-6">
+    <div>
       <img
         src={resultUrl!}
         alt="Resultado final"
-        class="w-64 h-64 object-cover rounded-lg border-4 border-white"
       />
-      <p class="text-white text-lg">¡Tu imagen está lista!</p>
+      <p>¡Tu imagen está lista!</p>
     </div>
   );
 }

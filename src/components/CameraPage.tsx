@@ -8,92 +8,87 @@ export default function CameraPage({ className = '' }: CameraPageProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
 
-  // Inicia y detiene la cámara
+  // inicia / reinicia cámara al cambiar facingMode
   useEffect(() => {
-    let localStream: MediaStream | null = null;
-    const startCamera = async () => {
+    let stream: MediaStream | null = null;
+    const start = async () => {
       try {
-        localStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
-        if (videoRef.current && localStream) {
-          videoRef.current.srcObject = localStream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
           await videoRef.current.play();
         }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error accediendo a la cámara');
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Error accediendo a la cámara');
       }
     };
-    startCamera();
-    return () => {
-      if (localStream) localStream.getTracks().forEach(track => track.stop());
-    };
-  }, []);
+    start();
+    return () => stream?.getTracks().forEach(t => t.stop());
+  }, [facingMode]);
 
-  // Captura a resolución nativa (full quality), sin comprimir
+  // captura full quality
   const capture = () => {
     if (!videoRef.current) return;
     const v = videoRef.current;
     const canvas = document.createElement('canvas');
     canvas.width = v.videoWidth;
     canvas.height = v.videoHeight;
-    const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/jpeg', 1.0);
-    setCapturedImage(dataUrl);
+    canvas.getContext('2d')!.drawImage(v, 0, 0, canvas.width, canvas.height);
+    setCapturedImage(canvas.toDataURL('image/jpeg', 1.0));
   };
 
+  // reinicia captura
   const resetCapture = () => {
     setCapturedImage(null);
     videoRef.current?.play().catch(() => {});
   };
 
-  // Comprime solo al enviar: escala y convierte a WebP
+  // alterna cámara front/back
+  const flipCamera = () => {
+    resetCapture();
+    setFacingMode(fm => (fm === 'user' ? 'environment' : 'user'));
+  };
+
+  // convierte a PNG y redirige a /loading
   const sendImage = async () => {
     if (!capturedImage) return;
-    // Carga imagen completa
     const img = new Image();
     img.src = capturedImage;
-    await new Promise(resolve => { img.onload = resolve; });
+    await new Promise<void>(res => { img.onload = () => res(); });
 
-    // Calcula dimensiones proporcionales con max 240px
-    const vw = img.width;
-    const vh = img.height;
-    const maxDim = 240;
-    let width: number, height: number;
-    if (vw > vh) {
-      width = maxDim;
-      height = Math.floor((vh / vw) * maxDim);
-    } else {
-      height = maxDim;
-      width = Math.floor((vw / vh) * maxDim);
-    }
-
-    // Dibuja en canvas reducido y comprime a WebP
+    // canvas al mismo tamaño para PNG sin pérdida
     const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(img, 0, 0, width, height);
-    const compressedData = canvas.toDataURL('image/webp', 0.5);
+    canvas.width = img.width;
+    canvas.height = img.height;
+    canvas.getContext('2d')!.drawImage(img, 0, 0, img.width, img.height);
 
-    // Guarda en sessionStorage y redirige
-    sessionStorage.setItem('photo', compressedData);
+    // extrae PNG
+    const pngData = canvas.toDataURL('image/png');
+
+    // genera sessionId y lee datos previos
+    const sessionId = crypto.randomUUID();
+    sessionStorage.setItem('sessionId', sessionId);
+    sessionStorage.setItem('photo', pngData);
+
+    // redirige al loading (ProcessPage hará POST + polling)
     window.location.href = '/loading';
   };
 
   if (error) {
     return (
-      <div className={`relative w-full h-screen bg-black ${className}`}>  
+      <div className={`relative w-full h-screen bg-black ${className}`}>
         <p className="text-white text-center mt-4">Error: {error}</p>
       </div>
     );
   }
 
   return (
-    <div className={`relative w-full h-screen bg-black ${className}`}>      
+    <div className={`relative w-full h-screen bg-black ${className}`}>
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover"
@@ -101,36 +96,32 @@ export default function CameraPage({ className = '' }: CameraPageProps) {
         playsInline
       />
 
-      {/* Vista previa full quality */}
       {capturedImage && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black z-10">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black">
           <img
             src={capturedImage}
-            alt="Capturada"
+            alt="Preview"
             className="max-w-full max-h-full object-contain rounded-lg"
           />
         </div>
       )}
 
-      {/* Overlay y controles */}
-      {!capturedImage ? (
-        <> {/* Sin foto: máscara y captura */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <img
-              src="/assets/mascara_camara_frontal.png"
-              alt="Guía de silueta"
-              className="w-3/4 max-w-xs opacity-60"
-            />
-          </div>
-          <div className="absolute top-8 w-full text-center px-4">
-            <p className="text-white text-xl font-semibold">
-              Acomoda tu rostro a la altura de la silueta
-            </p>
-          </div>
-          <div className="absolute bottom-8 left-0 right-0 px-6 flex items-center justify-center z-20">
+      {!capturedImage && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <img
+            src="/assets/mascara_camara_frontal.png"
+            alt="Guía de silueta"
+            className="w-3/4 max-w-xs opacity-60"
+          />
+        </div>
+      )}
+
+      <div className="absolute bottom-8 left-0 right-0 px-6 flex items-center justify-center z-20 space-x-4">
+        {!capturedImage ? (
+          <>
             <button
               onClick={capture}
-              className="relative w-20 h-20 flex items-center justify-center active:scale-95 transition-all duration-150"
+              className="relative w-20 h-20 flex items-center justify-center active:scale-95 transition-all"
               style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               <div className="absolute inset-0 rounded-full border-4 border-white" />
@@ -138,28 +129,32 @@ export default function CameraPage({ className = '' }: CameraPageProps) {
               <div className="absolute inset-5 rounded-full bg-white" />
             </button>
             <button
-              onClick={() => window.location.reload()}
+              onClick={flipCamera}
               className="p-3"
               style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               <img src="/assets/icons/reverse.png" alt="Cambiar cámara" className="w-8 h-8" />
             </button>
-          </div>
-        </>
-      ) : (
-        <div className="absolute bottom-8 left-0 right-0 px-6 flex items-center justify-center z-20 space-x-4">
-          <button
-            onClick={resetCapture}
-            className="px-6 py-3 bg-black text-white"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-          >Tomar otra</button>
-          <button
-            onClick={sendImage}
-            className="px-6 py-3 bg-red-600 text-white"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-          >Usar foto</button>
-        </div>
-      )}
+          </>
+        ) : (
+          <>
+            <button
+              onClick={resetCapture}
+              className="px-6 py-3 bg-black text-white"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
+            >
+              Tomar otra
+            </button>
+            <button
+              onClick={sendImage}
+              className="px-6 py-3 bg-red-600 text-white"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
+            >
+              Usar foto
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

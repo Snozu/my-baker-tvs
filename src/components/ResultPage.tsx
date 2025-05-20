@@ -11,34 +11,47 @@ interface Props {
 
 export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props) {
   const [nombre, setNombre] = useState<string>('');
-  const [photo, setPhoto] = useState<string>('');
-  // Nuevo estado para controlar la visibilidad del modal de compartir
+  const [displayUrl, setDisplayUrl] = useState<string>('');
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
-  
+
   useEffect(() => {
-    // Leemos nombre y foto desde sessionStorage
-    setNombre(sessionStorage.getItem('nombre') || '');
-    setPhoto(sessionStorage.getItem('photo') || '');
-  }, []);
-  
-  // Si ya tienes un resultUrl (hosteada), lo usas; si no, tiras de photo de sessionStorage
-  const displayUrl = resultUrl && resultUrl.length > 10
-    ? resultUrl
-    : photo;
+    const n = sessionStorage.getItem('nombre') || '';
+    const photo = sessionStorage.getItem('photo') || '';
+    const result = sessionStorage.getItem('resultUrl') || '';
     
-  const title = `¡Ser biker va contigo ${nombre}!`;
-  // const subtitle = 'Tu tipo es muy';
-  // const modelName = 'RONIN';
-  // const desc = 'Libre como el viento y rebelde con causa.';
-  
+    setNombre(n);
+    
+    // Determinar la URL a mostrar
+    if (result && result.length > 10) {
+      // Comprueba si es una URL de Google Drive
+      if (result.includes('drive.google.com/file')) {
+        // Extraer el ID del archivo de la URL de Google Drive
+        const fileIdMatch = result.match(/\/d\/([^\/?]+)/);
+        
+        if (fileIdMatch && fileIdMatch[1]) {
+          const fileId = fileIdMatch[1];
+          // Usar directamente la URL de vista previa para iframe
+          const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+          setDisplayUrl(previewUrl);
+        } else {
+          setDisplayUrl(result);
+        }
+      } else {
+        setDisplayUrl(result);
+      }
+    } else if (photo) {
+      // Si no hay URL de resultado, usar la foto original
+      setDisplayUrl(photo);
+    }
+  }, []);
+
   const handleDownload = () => {
     const a = document.createElement('a');
     a.href = displayUrl;
-    a.download = `mi_biker_${sessionId}.jpg`;
+    a.download = `mi_biker_${sessionId}.webp`;
     a.click();
   };
-  
-  // Función actualizada para abrir el modal de compartir
+
   const handleShare = () => {
     setIsShareModalOpen(true);
   };
@@ -49,44 +62,56 @@ export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props
   
   return (
     <div class="flex flex-col items-center px-6 space-y-6">
-      <h1 class="text-center text-2xl font-semibold">{title}</h1>
-      
-      <div class="relative w-full max-w-sm shadow-lg">
-        <img
-          src={displayUrl}
-          alt="Tu resultado biker"
-          class="w-full h-auto object-cover"
-        />
+      <h1 class="text-center text-2xl font-semibold">
+        ¡Ser biker va contigo, {nombre}!
+      </h1>
+
+      <div class="relative w-full max-w-sm shadow-lg image-container">
+        {/* Para URLs de Google Drive, usar siempre iframe */}
+        {displayUrl.includes('drive.google.com/file') ? (
+          <div>
+            <iframe 
+              src={displayUrl}
+              width="100%"
+              height="400"
+              frameBorder="0"
+              allowFullScreen
+              className="rounded-lg"
+            />
+            <p className="text-center text-sm mt-2 text-gray-200">Si la imagen no se ve, haz click para abrir en Drive</p>
+          </div>
+        ) : (
+          // Para otras imágenes regulares
+          <img
+            src={displayUrl}
+            alt="Tu resultado biker"
+            className="w-full h-auto object-cover rounded-lg"
+          />
+        )}
         <button
           onClick={handleDownload}
-          class="absolute top-2 right-2 bg-black bg-opacity-50 p-2 rounded-none"
+          class="absolute top-2 right-2 bg-black bg-opacity-50 p-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"/>
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
           </svg>
         </button>
       </div>
-      
-      {/* <div class="w-full max-w-sm bg-black text-center py-4 space-y-1">
-        <p class="text-white text-sm">{subtitle}</p>
-        <p class="text-white text-xl font-bold">{modelName}</p>
-        <p class="text-white text-sm">{desc}</p>
-      </div> */}
-      
+
       <p class="text-center text-base">¡Que empiece la rodada a tu aventura!</p>
-      
+
       <div class="w-full max-w-sm flex flex-col space-y-4">
-        {/* Botón modificado para abrir el modal de compartir */}
         <button
           onClick={handleShare}
-          class="w-full py-3 bg-red-600 text-white font-medium rounded-none"
+          class="w-full py-3 bg-red-600 text-white font-medium"
         >
           Compartir
         </button>
         <button
           onClick={() => window.location.href = '/question/datos'}
-          class="w-full py-3 border border-black text-black font-medium rounded-none"
+          class="w-full py-3 border border-black text-black font-medium"
         >
           Hagámoslo otra vez
         </button>

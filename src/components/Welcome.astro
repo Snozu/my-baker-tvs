@@ -1,4 +1,5 @@
 ---
+// Define las propiedades con sus tipos
 interface Props {
   title?: string;
   titleHighlight?: string;
@@ -7,22 +8,31 @@ interface Props {
   subtitleHighlight?: string;
 }
 
-const {
-  title = "¡Descubre tu",
-  titleHighlight = "versión biker",
-  titleEnd = "con TVS!",
-  subtitle = "Llena el formulario y prepárate para verte como",
-  subtitleHighlight = "todo un rider."
-} = Astro.props;
+// Desestructura las propiedades con valores predeterminados
+const props = Astro.props;
+const title = props.title || "¡Descubre tu";
+const titleHighlight = props.titleHighlight || "versión biker";
+const titleEnd = props.titleEnd || "con TVS!";
+const subtitle = props.subtitle || "Llena el formulario y prepárate para verte como";
+const subtitleHighlight = props.subtitleHighlight || "todo un rider.";
+
+// Añadir esta línea para asegurar que TypeScript encuentra las variables
+declare global {
+  interface Window { 
+    DeviceOrientationEvent: any;
+  }
+}
 ---
 
 <!DOCTYPE html>
 <html lang="es" class="h-full m-0 p-0">
   <head>
     <meta charset="UTF-8" />
-      <!-- MEJORADO: Meta viewport específico para móviles -->
+    <!-- MEJORADO: Meta viewport específico para móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" />
+    <!-- Permiso para vibración -->
+    <meta name="permissions" content="vibrate, accelerometer, gyroscope">
     <title>TVS - Descubre tu versión biker</title>
     <style>
       /* Reset básico para asegurar que no haya márgenes */
@@ -42,12 +52,16 @@ const {
       <!-- 1. Ajustar el recorte de la imagen de fondo - Limitada en altura -->
       <div class="absolute inset-0 w-full h-[75%] z-0">
         <img 
+          id="parallax-img"
           src="/assets/Start_img.png" 
           alt="Biker TVS" 
           class="w-full h-full object-cover object-left-center"
-          style="object-position: 10% 50%;"
+          style="object-position: 10% 50%; transform-origin: center center; transition: transform 0.2s ease-out;"
         />
       </div>
+
+      <!-- Degradado overlay para mejorar la legibilidad del texto -->
+      <div class="absolute inset-0 w-full h-full bg-gradient-to-b from-black/10 via-black/20 to-black/70 z-[6]"></div>
 
       <!-- Degradado entre imagen y bandera - AUMENTADO PARA HACERLO MÁS NOTORIO -->
       <div class="absolute top-[65%] w-full h-[15%] bg-gradient-to-b from-transparent via-black/80 to-black z-5"></div>
@@ -58,6 +72,18 @@ const {
         alt="bandera" 
         class="absolute bottom-0 top-[75%] w-full h-[25%] object-cover z-0" 
       />
+
+      <!-- Líneas de marco con degradados y animación - En z-[7] para estar sobre la imagen pero bajo el texto (z-[15]) -->
+      <div class="absolute inset-0 w-full h-full z-[7] pointer-events-none">
+        <!-- Línea izquierda con degradado en la parte inferior -->
+        <div class="absolute top-[10%] bottom-[27%] rigth-[22%] w-[2px] bg-gradient-to-b from-[#dc2626] to-transparent animated-line-left" style="transform: rotate(-18deg); transform-origin: top center;"></div>
+        
+        <!-- Línea derecha con degradado en la parte inferior -->
+        <div class="absolute top-[-6%] bottom-[40%] right-[22%] w-[2px] bg-gradient-to-b from-[#dc2626] to-transparent animated-line-right" style="transform: rotate(-18deg); transform-origin: top center;"></div>
+        
+        <!-- Línea horizontal con degradado hacia los extremos -->
+        <div class="absolute bottom-[30%] left-[42%] right-[0%] h-[2px] bg-gradient-to-r from-transparent via-[#dc2626] to-transparent animated-line-horizontal"></div>
+      </div>
 
       <!-- Degradado oscuro SUTIL en la parte inferior de la bandera -->
       <div class="absolute bottom-0 w-full h-[8%] bg-gradient-to-t from-black/40 to-transparent z-5"></div>
@@ -74,18 +100,18 @@ const {
       <!-- Contenido principal -->
       <div class="relative z-[15] h-full flex flex-col">
         <!-- 5. Título y subtítulo - RESPONSIVE -->
-        <div class="mt-[50vh] px-[5%] sm:px-[10%] md:px-[15%] w-full">
+        <div class="mt-[54vh] px-[5%] sm:px-[10%] md:px-[15%] w-full">
           <h1 class="text-white text-center">
-            <span class="text-[38px] sm:text-[45px] font-medium leading-none block">{title}</span>
-            <span class="text-[38px] sm:text-[45px] font-black italic leading-none block">{titleHighlight}</span>
-            <span class="text-[38px] sm:text-[45px] font-medium leading-none">con </span><span class="text-[38px] sm:text-[45px] font-black">TVS!</span>
+            <span class="text-[38px] sm:text-[45px] font-medium leading-none block animated-title">{title}</span>
+            <span class="text-[38px] sm:text-[45px] font-black italic leading-none block animated-title">{titleHighlight}</span>
+            <span class="text-[38px] sm:text-[45px] font-medium leading-none animated-title">con </span><span class="text-[38px] sm:text-[45px] font-black animated-title">TVS!</span>
           </h1>
           
           <!-- 6. Subtítulo - DIVIDIDO EN DOS PÁRRAFOS Y CENTRADO -->
-          <p class="text-[18px] sm:text-[22px] leading-snug max-w-[90%] sm:max-w-[320px] mt-4 text-white text-center mx-auto">
+          <p class="text-[18px] sm:text-[22px] leading-snug max-w-[90%] sm:max-w-[320px] mt-4 text-white text-center mx-auto animated-subtitle">
             {subtitle}
           </p>
-          <p class="text-[18px] sm:text-[22px] leading-snug max-w-[90%] sm:max-w-[320px] mt-2 text-center mx-auto">
+          <p class="text-[18px] sm:text-[22px] leading-snug max-w-[90%] sm:max-w-[320px] mt-2 text-center mx-auto animated-subtitle">
             <span class="text-red-600 font-bold">{subtitleHighlight}</span>
           </p>
         </div>
@@ -99,7 +125,7 @@ const {
           <div class="relative pb-8 pt-4 z-20 flex justify-center w-full">
             <div 
               id="swipe-container"
-              class="relative flex items-center justify-between w-[90%] max-w-[320px] h-16 bg-neutral-800/70 rounded-full p-[8px]"
+              class="relative flex items-center justify-between w-[90%] max-w-[320px] h-16 bg-neutral-800/70 rounded-full p-[8px] glow-effect"
             >
               <!-- Casco draggable - CENTRADO VERTICALMENTE -->
               <div 
@@ -115,7 +141,7 @@ const {
               </div>
 
               <!-- Flechas reposicionadas - ALTURA IGUALADA AL CASCO -->
-              <div class="absolute right-[16px] top-1/2 transform -translate-y-1/2 flex items-center">
+              <div class="absolute right-[16px] flex items-center pointer-events-none" style="top: calc(50% - 10px);">
                 <span class="arrow arrow-1">›</span>
                 <span class="arrow arrow-2">›</span>
                 <span class="arrow arrow-3">›</span>
@@ -127,10 +153,55 @@ const {
     </div>
 
     <style>
+      /* Animaciones de entrada para título y subtítulo */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .animated-title {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+      }
+      
+      h1 span:nth-child(1) { animation-delay: 0.2s; }
+      h1 span:nth-child(2) { animation-delay: 0.4s; }
+      h1 span:nth-child(3) { animation-delay: 0.6s; }
+      h1 span:nth-child(4) { animation-delay: 0.6s; }
+      
+      .animated-subtitle {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+        animation-delay: 0.8s;
+      }
+      
+      /* Animación pulsante para el contenedor del swipe */
+      @keyframes glowPulse {
+        0%, 100% {
+          box-shadow: 0 0 0 rgba(220, 38, 38, 0);
+        }
+        50% {
+          box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+        }
+      }
+      
+      .glow-effect {
+        animation: glowPulse 2s infinite;
+      }
+
       /* Animación de flechas */
       .arrow {
-        font-size: 85px; /* Aumentado para igualar altura del casco (70px) */
-        line-height: 0.8;
+        font-size: 90px; 
+        line-height: 0; 
+        display: inline-block; 
+        height: 70px; 
+        vertical-align: middle;
         color: #dc2626;
         font-weight: bold;
         margin: 0 -8px;
@@ -151,12 +222,73 @@ const {
         opacity: 0.7;
         transform: scale(0.95);
       }
+      
+      /* Animación de líneas */
+      @keyframes drawLineVertical {
+        0% {
+          height: 0;
+          opacity: 0;
+        }
+        100% {
+          height: 100%;
+          opacity: 1;
+        }
+      }
+      
+      @keyframes drawLineHorizontal {
+        0% {
+          width: 0;
+          opacity: 0;
+          left: 50%;
+        }
+        100% {
+          width: 58%; /* 100% - 42% (starting position) */
+          opacity: 1;
+          left: 42%;
+        }
+      }
+      
+      .animated-line-left {
+        height: 0;
+        animation: drawLineVertical 1.2s ease-out 0.8s forwards;
+      }
+      
+      .animated-line-right {
+        height: 0;
+        animation: drawLineVertical 1.2s ease-out 1.0s forwards;
+      }
+      
+      .animated-line-horizontal {
+        width: 0;
+        left: 50%;
+        right: auto;
+        animation: drawLineHorizontal 1.2s ease-out 1.5s forwards;
+      }
+      
+      /* Soporte para usuarios que prefieren movimiento reducido */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+        
+        .animated-line-left,
+        .animated-line-right {
+          height: 100%;
+        }
+        
+        .animated-line-horizontal {
+          width: 58%;
+          left: 42%;
+        }
+      }
     </style>
 
     <script>
       // Implementación del swipe mejorada
-      const helmet = document.getElementById('helmet-draggable') as HTMLElement | null;
-      const container = document.getElementById('swipe-container') as HTMLElement | null;
+      const helmet = document.getElementById('helmet-draggable');
+      const container = document.getElementById('swipe-container');
 
       if (helmet && container) {
         let isDragging = false;
@@ -188,11 +320,14 @@ const {
           }
         }
 
-        function getPointerX(e: TouchEvent | MouseEvent): number {
-          return 'touches' in e ? e.touches[0].clientX : e.clientX;
+        function getPointerX(e: Event): number {
+          if ('touches' in e) {
+            return (e as TouchEvent).touches[0].clientX;
+          }
+          return (e as MouseEvent).clientX;
         }
 
-        function handleStart(e: TouchEvent | MouseEvent) {
+        function handleStart(e: Event) {
           if (swipeCompletedFlag || !helmet || !container) return;
           updateDimensions(); // Actualizar dimensiones al inicio de cada swipe
           isDragging = true;
@@ -202,10 +337,10 @@ const {
           helmet.style.transition = 'none';
         }
 
-        function handleMove(e: TouchEvent | MouseEvent) {
+        function handleMove(e: Event) {
           if (!isDragging || swipeCompletedFlag || !helmet || !container) return;
 
-          if (e.cancelable) e.preventDefault();
+          if ('cancelable' in e && e.cancelable) e.preventDefault();
           const x = getPointerX(e);
           const deltaXFromInitialTouch = x - initialTouchX;
           const maxTranslateX = containerWidth - helmetWidth - containerHorizontalPadding;
@@ -223,6 +358,14 @@ const {
           const img = helmet.querySelector('img');
           if (img) {
             img.style.opacity = (1 - progress * 0.5).toString(); // Desvanecimiento gradual
+          }
+          
+          // Pequeña vibración durante el arrastre en puntos clave para dar feedback táctil
+          if ('vibrate' in navigator) {
+            // Vibrar sutilmente en ciertos puntos del arrastre (25%, 50%, 75%)
+            if (Math.abs(Math.round(progress * 100) % 25) < 1) {
+              navigator.vibrate(10); // Vibración muy corta de 10ms
+            }
           }
           
           // Umbral menor para dispositivos más pequeños
@@ -261,6 +404,13 @@ const {
           isDragging = false;
           helmet.style.transition = 'transform 0.3s ease-out';
           helmet.style.transform = `translateX(${maxTranslateX}px)`;
+          
+          // Vibrar el dispositivo si la API está disponible
+          if ('vibrate' in navigator) {
+            // Patrón de vibración: 100ms vibración, 50ms pausa, 200ms vibración
+            navigator.vibrate([100, 50, 200]);
+          }
+          
           removeEventListeners();
           setTimeout(() => {
             window.location.href = '/question/datos';
@@ -294,6 +444,53 @@ const {
               updateDimensions();
             }
         });
+      }
+      
+      // Efecto de paralaje para la imagen de fondo
+      const parallaxImg = document.getElementById('parallax-img');
+      
+      // Función para manejar el efecto paralaje en movimiento del mouse
+      function handleMouseParallax(e: MouseEvent) {
+        if (!parallaxImg) return;
+        
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        // Calcular posición relativa del mouse (valores entre -1 y 1)
+        const mouseX = (e.clientX / windowWidth) * 2 - 1;
+        const mouseY = (e.clientY / windowHeight) * 2 - 1;
+        
+        // Aplicar un movimiento sutil (máximo 15px en cualquier dirección)
+        const moveX = mouseX * 15;
+        const moveY = mouseY * 15;
+        
+        // Aplicar transformación con escala ligeramente aumentada para evitar bordes blancos
+        parallaxImg.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.05)`;
+      }
+      
+      // Función para manejar el efecto paralaje en orientación del dispositivo
+      function handleDeviceOrientationParallax(event: DeviceOrientationEvent) {
+        if (!parallaxImg || !event.beta || !event.gamma) return;
+        
+        // Limitar el rango para evitar movimientos bruscos
+        const beta = Math.min(Math.max(event.beta, -15), 15); // inclinación frontal/trasera
+        const gamma = Math.min(Math.max(event.gamma, -15), 15); // inclinación izquierda/derecha
+        
+        // Aplicar un movimiento sutil (máximo 15px en cualquier dirección)
+        const moveX = (gamma / 15) * 15;
+        const moveY = (beta / 15) * 15;
+        
+        // Aplicar transformación con escala ligeramente aumentada
+        parallaxImg.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.05)`;
+      }
+      
+      // Detectar si el dispositivo soporta orientación
+      if (window.DeviceOrientationEvent && 'ontouchstart' in window) {
+        // En dispositivos móviles, usar la orientación del dispositivo
+        window.addEventListener('deviceorientation', handleDeviceOrientationParallax, true);
+      } else {
+        // En escritorio, usar la posición del mouse
+        document.addEventListener('mousemove', handleMouseParallax);
       }
     </script>
   </body>

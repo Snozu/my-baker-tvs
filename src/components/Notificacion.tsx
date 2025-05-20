@@ -14,62 +14,62 @@ interface Props {
 
 const MESSAGES: Record<string, string[]> = {
 
-  skater: [
+  stryker: [
     '¡Genial, vas al grano!',
     '¡Puro estilo skater!',
     '¡Directo al punto, sin rodeos!',
     '¡Siempre en movimiento!'
   ],
-  parapente: [
+  rtr200: [
     '¡Volar libre!',
     '¡Precisión total!',
     '¡Control absoluto!',
     '¡Velocidad y precisión!'
   ],
-  ritmo: [
+  ronin: [
     '¡Tu ritmo es único!',
     '¡Siempre a tu paso!',
     '¡Siguiendo tu propio compás!',
     '¡El ritmo lo pones tú!'
   ],
-  terreno: [
+  rtr310: [
     '¡Dominas cualquier terreno!',
     '¡Poder en tus manos!',
     '¡Nada se te resiste!',
     '¡Control total en todo momento!'
   ],
-  ciudad: [
+  ntorq: [
     '¡Flow urbano asegurado!',
     '¡Eres la ciudad personificada!',
     '¡Moderno y con estilo!',
     '¡La ciudad es tu lienzo!'
   ],
   
-  romance: [
+  scott_pilgrim: [
     '¡El amor está en el aire!',
     '¡Las mejores historias tienen romance!',
     '¡Un corazón romántico como el tuyo!',
     '¡El romance hace que todo sea más emocionante!'
   ],
-  amistad: [
+  one_piece: [
     '¡Los sueños son el combustible de las aventuras!',
     '¡Con amigos, todo es posible!',
     '¡Ningún sueño es demasiado grande!',
     '¡La amistad es la mejor aventura!'
   ],
-  supervivencia: [
+  last_of_us: [
     '¡Tu instinto de supervivencia es impresionante!',
     '¡Los desafíos son oportunidades!',
     '¡Nada puede detenerte!',
     '¡Superar obstáculos es tu especialidad!'
   ],
-  exploracion: [
+  pokemon: [
     '¡El mundo es grande para explorar!',
     '¡Cada rincón es una aventura!',
     '¡El espíritu de exploración te guía!',
     '¡Descubrir lo desconocido es tu pasión!'
   ],
-  heroe: [
+  spiderverse: [
     '¡El mundo necesita héroes como tú!',
     '¡Cada acto de valentía cuenta!',
     '¡Llevas un héroe dentro!',

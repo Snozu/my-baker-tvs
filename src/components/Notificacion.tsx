@@ -10,6 +10,7 @@ interface Props {
   fieldName: string;
   options: Option[];
   nextUrl: string;
+  formId: string;
 }
 
 const MESSAGES: Record<string, string[]> = {
@@ -77,7 +78,7 @@ const MESSAGES: Record<string, string[]> = {
   ]
 };
 
-export default function Notificacion({ fieldName, options, nextUrl }: Props) {
+export default function Notificacion({ fieldName, options, nextUrl, formId }: Props) {
   // Inicialmente ninguna opción seleccionada
   const [selected, setSelected] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -89,6 +90,16 @@ export default function Notificacion({ fieldName, options, nextUrl }: Props) {
     setTimeout(() => setToast(null), 2000);
   };
 
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    if (selected) {
+      // Guardar en sessionStorage
+      sessionStorage.setItem(fieldName, selected);
+      // Redireccionar
+      window.location.href = nextUrl;
+    }
+  };
+
   return (
     <div className="w-full flex flex-col gap-8 px-5">
       {/* Toast */}
@@ -98,14 +109,14 @@ export default function Notificacion({ fieldName, options, nextUrl }: Props) {
         </div>
       )}
 
-      <form action={nextUrl} method="get" className="flex flex-col gap-8">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-8">
         {options.map((opt) => (
           <div key={opt.id} className="flex flex-col items-center space-y-2">
             <input
               type="radio"
               name={fieldName}
               id={opt.id}
-              value={opt.text}
+              value={opt.id}
               checked={selected === opt.id}
               onChange={() => handleChange(opt.id)}
               className="peer sr-only"

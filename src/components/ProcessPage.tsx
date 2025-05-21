@@ -9,7 +9,8 @@ const LOADING_MESSAGES = [
 ];
 
 export default function ProcessPage() {
-  const [status, setStatus] = useState<'loading' | 'completed'>('loading');
+  const [status, setStatus] = useState<'loading' | 'completed' | 'error'>('loading');
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [msgIndex, setMsgIndex] = useState(0);
   const msgInterval = useRef<number>();
@@ -31,9 +32,17 @@ export default function ProcessPage() {
       try {
         const form = new FormData();
         form.append('sessionId', sessionId);
-        ['nombre','estado','telefono','q1','q2'].forEach(k => {
+        
+        // Datos básicos
+        ['nombre','estado','telefono'].forEach(k => {
           form.append(k, sessionStorage.getItem(k) || '');
         });
+
+        // Enviar los IDs directamente
+        ['q1', 'q2'].forEach(k => {
+          form.append(k, sessionStorage.getItem(k) || '');
+        });
+
         // Foto comprimida en sessionStorage
         const dataUrl = sessionStorage.getItem('photo')!;
         const blob = await (await fetch(dataUrl)).blob();
@@ -53,11 +62,20 @@ export default function ProcessPage() {
     // 4) Función para hacer UN SOLO intento de polling
     const checkStatus = async () => {
       try {
+        console.log('🔄 Consultando estado para sessionId:', sessionId);
         const res = await fetch(`/api/status/${sessionId}`);
-        if (!res.ok) throw new Error('Error en respuesta');
-        const json = await res.json();
+        const text = await res.text(); // Obtener respuesta como texto primero
+        console.log('📥 Respuesta del servidor:', { status: res.status, body: text });
+
+        if (!res.ok) {
+          throw new Error(`Error en respuesta: ${res.status} ${text}`);
+        }
+
+        const json = JSON.parse(text);
+        console.log('✨ Estado actual:', json);
 
         if (json.status === 'completed' && json.imageUrl) {
+          console.log('🎉 Imagen lista!');
           // Guardar URL y preparar redirección
           sessionStorage.setItem('resultUrl', json.imageUrl);
           setResultUrl(json.imageUrl);
@@ -72,12 +90,15 @@ export default function ProcessPage() {
           
           // Redirigir después de la transición
           setTimeout(() => {
-            console.log('Redirigiendo a resultados...');
+            console.log('🚀 Redirigiendo a resultados...');
             window.location.href = '/result';
           }, 600);
+        } else {
+          console.log('⏳ Aún procesando...');
         }
       } catch (e) {
-        console.error('Error en polling:', e);
+        console.error('❌ Error en polling:', e);
+        // No cambiar el estado a error, seguir intentando
       }
     };
 
@@ -106,12 +127,6 @@ export default function ProcessPage() {
     return () => {
       clearInterval(msgInterval.current);
     };
-
-
-
-    return () => {
-      clearInterval(msgInterval.current);
-    };
   }, []);
 
   // UI
@@ -125,13 +140,27 @@ export default function ProcessPage() {
           style={{ imageRendering: 'auto' }} // Mejora la calidad de renderizado
         />
         <p class="text-lg font-semibold">{LOADING_MESSAGES[msgIndex]}</p>
-        <p class="text-sm text-gray-400 max-w-xs text-center">Espera mientras generamos tu imagen personalizada...</p>      </div>
+        <p class="text-sm text-gray-400 max-w-xs text-center">Espera mientras generamos tu imagen personalizada...</p>
+      </div>
     );
   }
 
-  // completed
+  if (status === 'error') {
+    return (
+      <div class="flex flex-col items-center justify-center h-full gap-6 bg-black text-white">
+        <p class="text-red-500 text-center text-lg font-semibold">{errorMessage}</p>
+        <button
+          onClick={() => window.location.href = '/question/datos'}
+          class="px-6 py-3 bg-red-600 text-white font-medium rounded-lg"
+        >
+          Intentar de nuevo
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div class="flex flex-col items-center justify-center h-full gap-6 bg-black text-white">
       <img
         src={resultUrl!}
         alt="Resultado final"

@@ -48,9 +48,11 @@ export default function ProcessPage() {
         const blob = await (await fetch(dataUrl)).blob();
         form.append('photo', blob, 'selfie.png');
 
-        console.log('🔜 Enviando a Make con sessionId', sessionId);
+        console.log('🚀 Enviando a Make con sessionId', sessionId);
+        // URL hardcodeada para el webhook de POST
+        const webhookUrl = 'https://hook.us2.make.com/ie7cprxmog22liwjj293tomqtnx7ftkw';
         const res = await fetch(
-          'https://hook.us2.make.com/ie7cprxmog22liwjj293tomqtnx7ftkw',
+          webhookUrl,
           { method: 'POST', body: form }
         );
         console.log('Webhook response status:', res.status, await res.text());
@@ -59,18 +61,35 @@ export default function ProcessPage() {
       }
     };
 
-    // 4) Función para hacer UN SOLO intento de polling
+    // 4) Función para hacer UN SOLO intento de polling directamente a Make
     const checkStatus = async () => {
       try {
         console.log('🔄 Consultando estado para sessionId:', sessionId);
-        const res = await fetch(`/api/status/${sessionId}`);
-        const text = await res.text(); // Obtener respuesta como texto primero
-        console.log('📥 Respuesta del servidor:', { status: res.status, body: text });
+        // Usamos la URL de polling desde .env o la URL hardcodeada como fallback
+        const pollUrl = 'https://hook.us2.make.com/uixynbx5eroomd434tu96wxbf2zjdduv';
+        const res = await fetch(`${pollUrl}?sessionId=${sessionId}`);
+        let text = await res.text(); // Obtener respuesta como texto primero
+        console.log('📥 Respuesta de Make:', { status: res.status, body: text });
 
         if (!res.ok) {
           throw new Error(`Error en respuesta: ${res.status} ${text}`);
         }
 
+        // Arreglar JSON malformado (igual que lo hacía el endpoint API)
+        text = text
+          // 1. Remover espacios extra y saltos de línea
+          .replace(/\s+/g, ' ')
+          .trim()
+          // 2. Poner comillas en las claves
+          .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3')
+          // 3. Poner comillas en valores sin comillas
+          .replace(/:\s*([^\s,{}"]+)/g, ':"$1"')
+          // 4. Arreglar URLs de Google Drive
+          .replace(/"(https?:\/\/[^"]+)"/g, (match) => {
+            return JSON.stringify(match.slice(1, -1));
+          });
+        
+        console.log('JSON arreglado:', text);
         const json = JSON.parse(text);
         console.log('✨ Estado actual:', json);
 

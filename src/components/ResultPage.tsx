@@ -3,13 +3,7 @@ import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import ShareModal from './ShareModal';
 
-interface Props {
-  sessionId: string;
-  resultUrl?: string;  // ahora opcional
-  pageUrl: string;
-}
-
-export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props) {
+export default function ResultPage() {
   const [nombre, setNombre] = useState<string>('');
   const [displayUrl, setDisplayUrl] = useState<string>('');
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
@@ -18,6 +12,10 @@ export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props
     const n = sessionStorage.getItem('nombre') || '';
     const photo = sessionStorage.getItem('photo') || '';
     const result = sessionStorage.getItem('resultUrl') || '';
+    const sessionId = sessionStorage.getItem('sessionId') || crypto.randomUUID();
+    
+    // Guardar sessionId para usarlo más tarde
+    sessionStorage.setItem('sessionId', sessionId);
     
     setNombre(n);
     
@@ -46,6 +44,7 @@ export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props
   }, []);
 
   const handleDownload = () => {
+    const sessionId = sessionStorage.getItem('sessionId') || 'biker';
     const a = document.createElement('a');
     a.href = displayUrl;
     a.download = `mi_biker_${sessionId}.webp`;

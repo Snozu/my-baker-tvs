@@ -117,6 +117,7 @@ export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props
         </button>
       </div>
       
+      <h1 class="text-2xl font-bold mb-4">¡Tu imagen está lista!</h1>
       <p class="text-center text-sm mt-6 font-semibold">
         #MiBiker<span class="text-red-600">TVS</span>
       </p>
@@ -128,7 +129,7 @@ export default function ResultPage({ sessionId, resultUrl = '', pageUrl }: Props
         onClose={() => setIsShareModalOpen(false)}
         imageUrl={displayUrl}
         pageUrl={window.location.href} // URL actual para compartir
-        title={title}
+        title="¡Tu imagen está lista!"
       />
     </div>
   );

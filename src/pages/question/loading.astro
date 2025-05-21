@@ -1,12 +1,9 @@
 ---
-import QuestionnaireLayout from '../../layouts/QuestionnaireLayout.astro';
+import QuestionLayout from '../../layouts/QuestionLayout.astro';
 ---
 
-<QuestionnaireLayout 
-  slideNumber="07" 
-  title="Generando tu" 
-  titleHighlight="versión biker" 
-  questionMark={false}
+<QuestionLayout 
+  title="Generando tu <span class='text-red-600'>versión biker</span>"
 >
   <div class="flex flex-col items-center justify-center w-full py-8">
     <div class="relative w-64 h-64 flex items-center justify-center mb-8">
@@ -45,4 +42,4 @@ import QuestionnaireLayout from '../../layouts/QuestionnaireLayout.astro';
       window.location.href = '/result';
     }, 3000);
   </script>
-</QuestionnaireLayout>
+</QuestionLayout>

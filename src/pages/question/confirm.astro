@@ -1,12 +1,9 @@
 ---
-import QuestionnaireLayout from '../../layouts/QuestionnaireLayout.astro';
+import QuestionLayout from '../../layouts/QuestionLayout.astro';
 ---
 
-<QuestionnaireLayout 
-  slideNumber="06" 
-  title="Confirma tu" 
-  titleHighlight="foto" 
-  questionMark={false}
+<QuestionLayout 
+  title="Confirma tu <span class='text-red-600'>foto</span>"
 >
   <div class="flex flex-col items-center justify-center w-full">
     <div class="relative w-64 h-64 bg-gray-300 rounded-full overflow-hidden mb-4 border-4 border-gray-400">
@@ -37,4 +34,4 @@ import QuestionnaireLayout from '../../layouts/QuestionnaireLayout.astro';
       <img src="/assets/icons/arrow-next.svg" alt="Siguiente" class="w-4 h-4 ml-1" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 24 24%22><path fill=%22white%22 d=%22M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z%22/></svg>'" />
     </a>
   </div>
-</QuestionnaireLayout>
+</QuestionLayout>

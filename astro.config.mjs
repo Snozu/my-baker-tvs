@@ -6,6 +6,7 @@ import path from 'path';
 
 // https://astro.build/config
 export default defineConfig({
+  output: 'static',
   integrations: [preact(), tailwind()],
   vite: {
     resolve: {
@@ -13,5 +14,9 @@ export default defineConfig({
         '@': path.resolve('./src')
       }
     }
+  },
+  // Asegurarse de que todas las páginas sean estáticas
+  build: {
+    format: 'file'
   }
 });

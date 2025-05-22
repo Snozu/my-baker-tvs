@@ -34,7 +34,7 @@ async function shareViaNavigator(title: string, text: string, url: string) {
 
 function shareFacebookStory(url: string) {
   window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
-  return { success: true, message: "Abriendo Facebook para compartir en tu historia..." };
+  return { success: true, message: "Abriendo Facebook para compartir..." };
 }
 
 function shareWhatsApp(text: string, url: string) {
@@ -61,6 +61,20 @@ export default function ShareModal({
   const [feedback, setFeedback] = useState<{message: string, success: boolean} | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Obtener la URL compartible de Google Drive
+  const getShareableUrl = () => {
+    if (imageUrl.includes('drive.google.com')) {
+      const fileIdMatch = imageUrl.match(/\/d\/([^\/?]+)/);
+      if (fileIdMatch && fileIdMatch[1]) {
+        // URL de vista directa que se puede compartir
+        return `https://drive.google.com/file/d/${fileIdMatch[1]}/view`;
+      }
+    }
+    return imageUrl;
+  };
+  
+  const shareableImageUrl = getShareableUrl();
+
   useEffect(() => {
     if (isOpen) {
       setIsAnimating(true);
@@ -82,16 +96,20 @@ export default function ShareModal({
 
     switch(platform) {
       case 'facebook-story':
-        result = shareFacebookStory(pageUrl);
+        // Compartir la URL de Google Drive directamente
+        result = shareFacebookStory(shareableImageUrl);
         break;
       case 'instagram-story':
-        result = shareInstagramStory(imageUrl); 
+        // Instagram no permite compartir URLs directamente, solo abrir la app
+        result = shareInstagramStory(shareableImageUrl); 
         break;
       case 'whatsapp':
-        result = shareWhatsApp(shareText, pageUrl);
+        // Compartir con texto y la URL de Google Drive
+        result = shareWhatsApp(shareText, shareableImageUrl);
         break;
       case 'more': 
-        result = await shareViaNavigator(title, shareText, pageUrl);
+        // Usar Web Share API con la URL de Google Drive
+        result = await shareViaNavigator(title, shareText, shareableImageUrl);
         break;
       default:
         break;
@@ -117,8 +135,9 @@ export default function ShareModal({
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(pageUrl);
-      setFeedback({ message: "¡Enlace copiado!", success: true });
+      // Copiar la URL de Google Drive en lugar de pageUrl
+      await navigator.clipboard.writeText(shareableImageUrl);
+      setFeedback({ message: "¡Enlace de la imagen copiado!", success: true });
     } catch (err) {
       console.error("Error al copiar enlace:", err);
       setFeedback({ message: "No se pudo copiar.", success: false });
@@ -133,9 +152,9 @@ export default function ShareModal({
   };
 
   const shareOptionsList = [
-    { platform: 'facebook-story', label: 'Facebook', Icon: FacebookIcon }, // Etiqueta general, acción es Historia
-    { platform: 'instagram-story', label: 'Instagram', Icon: InstagramIcon }, // Etiqueta general, acción es Historia
-    { platform: 'whatsapp', label: 'Whatsapp', Icon: WhatsappIcon },
+    { platform: 'facebook-story', label: 'Facebook', Icon: FacebookIcon }, 
+    { platform: 'instagram-story', label: 'Instagram', Icon: InstagramIcon }, 
+    { platform: 'whatsapp', label: 'WhatsApp', Icon: WhatsappIcon },
     { platform: 'more', label: 'Más', Icon: MoreIcon },
   ];
 
@@ -163,7 +182,7 @@ export default function ShareModal({
             className="text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
             aria-label="Cerrar modal"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
         
@@ -181,7 +200,7 @@ export default function ShareModal({
               <button 
                 key={platform}
                 onClick={() => handleShareAction(platform)}
-                className="flex flex-col items-center justify-start space-y-2 w-[calc(25%-12px)] sm:w-[calc(25%-16px)] group text-center focus:outline-none" // Ajuste de ancho para 4 iconos
+                className="flex flex-col items-center justify-start space-y-2 w-[calc(25%-12px)] sm:w-[calc(25%-16px)] group text-center focus:outline-none"
                 aria-label={`Compartir en ${label}`}
               >
                 <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-150 ${
@@ -199,12 +218,12 @@ export default function ShareModal({
         </div>
 
         <div className="p-4 sm:px-6 pb-6 pt-3">
-          <p className="text-left text-xs text-gray-500 mb-2 ml-1">O comparte el enlace</p>
+          <p className="text-left text-xs text-gray-500 mb-2 ml-1">Enlace de tu imagen</p>
           <div className="flex items-center bg-gray-100 rounded-lg p-1 h-12">
             <input
               type="text"
               readOnly
-              value={pageUrl}
+              value={shareableImageUrl}
               className="flex-grow bg-transparent text-sm text-gray-700 px-3 focus:outline-none truncate"
               onClick={(e) => (e.target as HTMLInputElement).select()}
               aria-label="Enlace para compartir"
@@ -214,7 +233,7 @@ export default function ShareModal({
               className="p-2 h-10 w-10 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
               aria-label="Copiar enlace"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>

@@ -10,72 +10,95 @@ export default function CameraPage({ className = '' }: CameraPageProps) {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
 
-  // inicia / reinicia cámara al cambiar facingMode
+  // simulación de centrado
+  const checkFaceCentered = () => {
+    const el = document.getElementById('centerIndicator');
+    const maskEl = document.getElementById('faceMask');
+    if (!el || !maskEl) return;
+    
+    if (Math.random() > 0.4) {
+      // Mostrar indicador de check
+      el.classList.add('opacity-100');
+      
+      // Cambiar máscara a verde super vivo
+      maskEl.classList.remove('opacity-10');
+      maskEl.classList.add('opacity-100', 'filter', 'brightness-200', 'contrast-125', 'invert-[0.2]', 'sepia', 'saturate-[25]', 'hue-rotate-[100deg]');
+      
+      setTimeout(() => {
+        // Ocultar indicador
+        el.classList.remove('opacity-100');
+        
+        // Restaurar máscara a normal
+        maskEl.classList.add('opacity-60');
+        maskEl.classList.remove('opacity-100', 'filter', 'brightness-200', 'contrast-125', 'invert-[0.2]', 'sepia', 'saturate-[25]', 'hue-rotate-[100deg]');
+      }, 1800);
+    }
+  };
+
   useEffect(() => {
     let stream: MediaStream | null = null;
-    const start = async () => {
+    let intervalId: number;
+
+    (async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: false,
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
+          if (!capturedImage) {
+            intervalId = window.setInterval(checkFaceCentered, 3000);
+          }
         }
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Error accediendo a la cámara');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'No se pudo abrir la cámara');
       }
-    };
-    start();
-    return () => stream?.getTracks().forEach(t => t.stop());
-  }, [facingMode]);
+    })();
 
-  // captura full quality
+    return () => {
+      stream?.getTracks().forEach((t) => t.stop());
+      clearInterval(intervalId);
+    };
+  }, [facingMode, capturedImage]);
+
   const capture = () => {
     if (!videoRef.current) return;
     const v = videoRef.current;
     const canvas = document.createElement('canvas');
     canvas.width = v.videoWidth;
     canvas.height = v.videoHeight;
-    canvas.getContext('2d')!.drawImage(v, 0, 0, canvas.width, canvas.height);
-    setCapturedImage(canvas.toDataURL('image/jpeg', 1.0));
+    const ctx = canvas.getContext('2d')!;
+    // espejo para que la foto no quede invertida
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(v, 0, 0);
+    setCapturedImage(canvas.toDataURL('image/jpeg', 1));
   };
 
-  // reinicia captura
   const resetCapture = () => {
     setCapturedImage(null);
     videoRef.current?.play().catch(() => {});
   };
 
-  // alterna cámara front/back
   const flipCamera = () => {
     resetCapture();
-    setFacingMode(fm => (fm === 'user' ? 'environment' : 'user'));
+    setFacingMode((f) => (f === 'user' ? 'environment' : 'user'));
   };
 
-  // convierte a PNG y redirige a /loading
   const sendImage = async () => {
     if (!capturedImage) return;
     const img = new Image();
     img.src = capturedImage;
-    await new Promise<void>(res => { img.onload = () => res(); });
-
-    // canvas al mismo tamaño para PNG sin pérdida
+    await new Promise((res) => (img.onload = () => res(null)));
     const canvas = document.createElement('canvas');
     canvas.width = img.width;
     canvas.height = img.height;
-    canvas.getContext('2d')!.drawImage(img, 0, 0, img.width, img.height);
-
-    // extrae PNG
-    const pngData = canvas.toDataURL('image/png');
-
-    // genera sessionId y lee datos previos
+    canvas.getContext('2d')!.drawImage(img, 0, 0);
+    const png = canvas.toDataURL('image/png');
     const sessionId = crypto.randomUUID();
     sessionStorage.setItem('sessionId', sessionId);
-    sessionStorage.setItem('photo', pngData);
-
-    // redirige al loading (ProcessPage hará POST + polling)
+    sessionStorage.setItem('photo', png);
     window.location.href = '/loading';
   };
 
@@ -89,13 +112,25 @@ export default function CameraPage({ className = '' }: CameraPageProps) {
 
   return (
     <div className={`relative w-full h-screen bg-black ${className}`}>
+      {/* Indicador de cámara */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30">
+        <span className="bg-black bg-opacity-50 text-white text-xs px-3 py-1 rounded-full">
+          {facingMode === 'user' ? 'Cámara Frontal' : 'Cámara Trasera'}
+        </span>
+      </div>
+
+      {/* Video Preview */}
       <video
         ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover"
+        className={`
+          absolute inset-0 w-full h-full object-cover
+          ${facingMode === 'user' ? 'transform scale-x-[-1]' : ''}
+        `}
         autoPlay
         playsInline
       />
 
+      {/* Preview de foto */}
       {capturedImage && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black">
           <img
@@ -106,48 +141,92 @@ export default function CameraPage({ className = '' }: CameraPageProps) {
         </div>
       )}
 
+      {/* Máscara + Check */}
       {!capturedImage && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
+          <div
+            id="centerIndicator"
+            className="
+              mb-6 flex items-center justify-center
+              w-12 h-12 bg-green-500 rounded-full shadow-lg
+              opacity-0 transition-opacity duration-300
+            "
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={3}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
           <img
+            id="faceMask"
             src="/assets/mascara_camara_frontal.png"
             alt="Guía de silueta"
-            className="w-3/4 max-w-xs opacity-60"
+            className="w-[85%] max-w-sm opacity-60 transition-all duration-300"
           />
         </div>
       )}
 
-      <div className="absolute bottom-8 left-0 right-0 px-6 flex items-center justify-center z-20 space-x-4">
+      {/* Controles siempre visibles y responsive */}
+      <div
+        className="
+          fixed inset-x-0 bottom-0 z-30 flex items-center justify-center
+          px-4 py-3 pb-[env(safe-area-inset-bottom)] space-x-6
+          bg-gradient-to-t from-black/70 to-transparent
+        "
+      >
         {!capturedImage ? (
           <>
+            {/* Botón captura con animación */}
             <button
               onClick={capture}
-              className="relative w-20 h-20 flex items-center justify-center active:scale-95 transition-all"
+              className="
+                relative flex items-center justify-center
+                w-16 h-16 sm:w-20 sm:h-20
+                active:scale-95 transition-transform
+              "
               style={{ WebkitTapHighlightColor: 'transparent' }}
             >
-              <div className="absolute inset-0 rounded-full border-4 border-white" />
-              <div className="absolute inset-3 rounded-full border-2 border-white" />
-              <div className="absolute inset-5 rounded-full bg-white" />
+              {/* Anillo pulsante */}
+              <span className="absolute inset-0 rounded-full border-4 border-white opacity-50 animate-pulse"></span>
+              <span className="absolute inset-3 rounded-full border-2 border-white"></span>
+              <span className="absolute inset-6 rounded-full bg-white"></span>
             </button>
+
+            {/* Flip cámara */}
             <button
               onClick={flipCamera}
-              className="p-3"
+              className="p-3 bg-black bg-opacity-50 rounded-full"
               style={{ WebkitTapHighlightColor: 'transparent' }}
             >
-              <img src="/assets/icons/reverse.png" alt="Cambiar cámara" className="w-8 h-8" />
+              <img
+                src="/assets/icons/reverse.png"
+                alt="Cambiar cámara"
+                className="w-6 h-6 sm:w-8 sm:h-8"
+              />
             </button>
           </>
         ) : (
           <>
             <button
               onClick={resetCapture}
-              className="px-6 py-3 bg-black text-white"
+              className="px-5 py-2 bg-black text-white rounded-lg"
               style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               Tomar otra
             </button>
             <button
               onClick={sendImage}
-              className="px-6 py-3 bg-red-600 text-white"
+              className="px-5 py-2 bg-red-600 text-white rounded-lg"
               style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               Usar foto

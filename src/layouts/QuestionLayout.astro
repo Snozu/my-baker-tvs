@@ -5,6 +5,9 @@ interface Props {
   title: string;
 }
 const { title } = Astro.props as Props;
+
+// Obtenemos la ruta actual para aplicar animaciones específicas
+const currentPath = Astro.url.pathname;
 ---
 <!DOCTYPE html>
 <html lang="es" class="h-full m-0 p-0">
@@ -13,12 +16,73 @@ const { title } = Astro.props as Props;
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>TVS – Pregunta</title>
     <link rel="stylesheet" href="/styles/global.css" />
-    <style>html,body{margin:0;padding:0;height:100%;width:100%;}</style>
+    <style>
+      html,body{margin:0;padding:0;height:100%;width:100%;}
+      
+      /* Animaciones de página */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(50px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      
+      @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      
+      .page-content {
+        opacity: 0;
+        animation: fadeIn 0.6s ease forwards;
+      }
+      
+      .page-title {
+        opacity: 0;
+        animation: slideInRight 0.8s ease forwards 0.2s;
+      }
+      
+      .form-container {
+        opacity: 0;
+        animation: scaleIn 0.6s ease forwards 0.4s;
+      }
+    </style>
   </head>
   <body class="bg-gray-100 h-full w-full flex items-start justify-start">
-    <main class="w-full max-w-[450px] mx-auto p-6 flex flex-col items-center space-y-6">
-      <h2 class="text-center text-[40px] font-medium leading-snug" set:html={title} />
-      <slot />
+    <main class="w-full max-w-[450px] mx-auto p-6 flex flex-col items-center space-y-6 page-content">
+      <h2 class="text-center text-[40px] font-medium leading-snug page-title" set:html={title} />
+      <div class="w-full form-container">
+        <slot />
+      </div>
     </main>
   </body>
 </html>
+
+<script>
+  // Añadimos transiciones entre páginas
+  document.addEventListener('DOMContentLoaded', () => {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formElement = e.currentTarget as HTMLFormElement;
+        
+        // Animación de salida
+        document.querySelector('.page-content')?.classList.add('animate-fadeOut');
+        
+        // Esperamos a que termine la animación antes de navegar
+        setTimeout(() => {
+          formElement.submit();
+        }, 300);
+      });
+    });
+  });
+</script>

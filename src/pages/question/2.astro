@@ -3,22 +3,52 @@ import QuestionLayout from '../../layouts/QuestionLayout.astro';
 import CreativeQuestion, { type Option } from '../../components/Notificacion';
 
 const options: Option[] = [
-  { id: 'scott_pilgrim',    text: 'Un mundo lleno de humor, música, romance y combates épicos.',      img: '/assets/Romance.png'  },
-  { id: 'one_piece',    text: 'Un mundo de aventura y amistad donde los sueños más locos son posibles.',   img: '/assets/Amistad.png'     },
-  { id: 'last_of_us', text: 'Un entorno desafiante donde la supervivencia y los vínculos importan.', img: '/assets/Supervivencia.png' },
-  { id: 'pokemon',  text: 'Un universo con criaturas fantásticas lleno de aventuras y exploración.', img: '/assets/Exploracion.png' },
-  { id: 'spiderverse',       text: 'Un mundo vibrante donde cada persona puede ser un héroe a su manera.', img: '/assets/Heroes.png'  },
+  {
+    id: 'scott_pilgrim',
+    title: 'Romance y Rock',
+    subtitle: '¡Estilo, música y acción!',
+    img: '/assets/Romance.png',
+  },
+  {
+    id: 'one_piece',
+    title: 'Aventura Total',
+    subtitle: 'Amigos, locura y libertad.',
+    img: '/assets/Amistad.png',
+  },
+  {
+    id: 'last_of_us',
+    title: 'Modo Supervivencia',
+    subtitle: 'Rudo, real, sin filtros.',
+    img: '/assets/Supervivencia.png',
+  },
+  {
+    id: 'pokemon',
+    title: 'Exploración Fantástica',
+    subtitle: 'Criaturas y caminos nuevos.',
+    img: '/assets/Exploracion.png',
+  },
+  {
+    id: 'spiderverse',
+    title: 'Multiverso Heroico',
+    subtitle: 'Tu estilo, tu historia.',
+    img: '/assets/Heroes.png',
+  },
 ];
 ---
-<QuestionLayout title={`¿Qué tipo de <span class="text-red-600">aventurero</span><br>eres?`}>
-  <CreativeQuestion
-    client:load
-    fieldName="q2"
-    {options}
-    nextUrl="/question/camera"
-    formId="form-q2"
-  />
+<QuestionLayout title={`¿Cuál es tu <span class="text-red-600">mundo ideal</span>?`}>
+  <form id="form-q2" action="/question/camera" method="get" class="w-full flex flex-col gap-8 px-5">
+    <CreativeQuestion client:load fieldName="q2" {options} nextUrl="/question/camera" formId="form-q2" />
+  </form>
 </QuestionLayout>
 
-
+<!-- Script que guarda en sessionStorage antes del submit -->
+<script>
+  const formQ2 = document.getElementById('form-q2') as HTMLFormElement;
+  if (formQ2) {
+    formQ2.addEventListener('submit', () => {
+      const fd = new FormData(formQ2);
+      const q2Value = fd.get('q2');
+      sessionStorage.setItem('q2', q2Value ? q2Value.toString() : '');
+    });
+  }
 </script>

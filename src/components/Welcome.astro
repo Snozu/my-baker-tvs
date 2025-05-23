@@ -47,10 +47,10 @@ declare global {
     </style>
   </head>
   <body class="h-full bg-black antialiased">
-    <!-- Contenedor principal - Asegura que el fondo sea negro y cubra toda la pantalla -->
-    <div class="relative w-full h-full overflow-hidden bg-black">
-      <!-- 1. Ajustar el recorte de la imagen de fondo - Limitada en altura -->
-      <div class="absolute inset-0 w-full h-[75%] z-0">
+    <!-- Contenedor principal - Asegura que el fondo sea negro y cubra toda la pantalla con espacio para navegadores -->
+    <div class="relative w-full h-full overflow-hidden bg-black pb-[calc(env(safe-area-inset-bottom)+60px)]">
+      <!-- 1. Ajustar el recorte de la imagen de fondo - Reducida en altura para mejor visualización -->
+      <div class="absolute inset-0 w-full h-[65%] z-0">
         <img 
           id="parallax-img"
           src="/assets/Start_img.png" 
@@ -99,8 +99,8 @@ declare global {
 
       <!-- Contenido principal -->
       <div class="relative z-[15] h-full flex flex-col">
-        <!-- 5. Título y subtítulo - RESPONSIVE -->
-        <div class="mt-[54vh] px-[5%] sm:px-[10%] md:px-[15%] w-full">
+        <!-- 5. Título y subtítulo - RESPONSIVE (Movido hacia arriba) -->
+        <div class="mt-[40vh] px-[5%] sm:px-[10%] md:px-[15%] w-full">
           <h1 class="text-white text-center">
             <span class="text-[38px] sm:text-[45px] font-medium leading-none block animated-title">{title}</span>
             <span class="text-[38px] sm:text-[45px] font-black italic leading-none block animated-title">{titleHighlight}</span>
@@ -116,13 +116,18 @@ declare global {
           </p>
         </div>
 
-        <!-- Espaciador flexible -->
-        <div class="flex-1"></div>
+        <!-- Espaciador mínimo para posicionar correctamente el contenido -->
+        <div class="flex-grow-0 h-[5vh]"></div>
 
         <!-- Sección inferior -->
         <div class="relative">
-          <!-- Track del swipe button - RESPONSIVE -->
-          <div class="relative pb-8 pt-4 z-20 flex justify-center w-full">
+          <!-- Texto de instrucción para el swipe -->
+          <div class="text-center text-white mb-4">
+            <span class="font-bold text-lg">Desliza para comenzar</span>
+          </div>
+          
+          <!-- Track del swipe button - Posicionado correctamente -->
+          <div class="relative pb-12 pt-0 z-20 flex justify-center w-full">
             <div 
               id="swipe-container"
               class="relative flex items-center justify-between w-[90%] max-w-[320px] h-16 bg-neutral-800/70 rounded-full p-[8px] glow-effect"

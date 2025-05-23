@@ -1,14 +1,15 @@
 ---
+// src/pages/question/datos.astro
 import MobileLayout from '../../layouts/MobileLayout.astro';
 ---
 <MobileLayout backgroundImage="/assets/background_formulario_datos.png">
   <div class="px-4 sm:px-6 md:px-8">
     <!-- Título -->
     <h2
-      class="text-center 
+      class="text-center
              text-[32px] sm:text-[36px] md:text-[45px]
              font-normal text-white leading-tight
-             mb-8 sm:mb-10"
+             mb-8 sm:mb-10 animate-fadeInDown"
     >
       Antes de<br />
       empezar:
@@ -19,10 +20,11 @@ import MobileLayout from '../../layouts/MobileLayout.astro';
       id="form-datos"
       action="/question/1"
       method="get"
-      class="w-full max-w-[320px] mx-auto space-y-8 md:space-y-12"
+      class="w-full max-w-[320px] mx-auto space-y-8 md:space-y-12 pb-20 overflow-y-auto"
+      style="scroll-padding-bottom: 6rem;"
     >
       <!-- Nombre -->
-      <div class="flex flex-col">
+      <div class="flex flex-col animate-fadeInUp" style="animation-delay: 100ms;">
         <label
           for="nombre"
           class="block text-white text-[18px] md:text-[22px] font-bold mb-4 text-center"
@@ -33,13 +35,14 @@ import MobileLayout from '../../layouts/MobileLayout.astro';
           id="nombre"
           name="nombre"
           type="text"
-          class="w-full h-12 bg-transparent border border-white text-white focus:outline-none focus:border-red-500 transition px-2"
+          class="w-full h-12 bg-transparent border border-white text-white
+                 focus:outline-none focus:border-red-500 transition px-2 rounded-sm"
           required
         />
       </div>
 
       <!-- Estado -->
-      <div class="flex flex-col">
+      <div class="flex flex-col animate-fadeInUp" style="animation-delay: 200ms;">
         <label
           for="estado"
           class="block text-white text-[18px] md:text-[22px] font-bold mb-4 text-center"
@@ -50,13 +53,14 @@ import MobileLayout from '../../layouts/MobileLayout.astro';
           id="estado"
           name="estado"
           type="text"
-          class="w-full h-12 bg-transparent border border-white text-white focus:outline-none focus:border-red-500 transition px-2"
+          class="w-full h-12 bg-transparent border border-white text-white
+                 focus:outline-none focus:border-red-500 transition px-2 rounded-sm"
           required
         />
       </div>
 
       <!-- Teléfono -->
-      <div class="flex flex-col">
+      <div class="flex flex-col animate-fadeInUp" style="animation-delay: 300ms;">
         <label
           for="telefono"
           class="block text-white text-[18px] md:text-[22px] font-bold mb-4 text-center"
@@ -67,16 +71,19 @@ import MobileLayout from '../../layouts/MobileLayout.astro';
           id="telefono"
           name="telefono"
           type="tel"
-          class="w-full h-12 bg-transparent border border-white text-white focus:outline-none focus:border-red-500 transition px-2"
+          class="w-full h-12 bg-transparent border border-white text-white
+                 focus:outline-none focus:border-red-500 transition px-2 rounded-sm"
           required
         />
       </div>
 
       <!-- Botón -->
-      <div class="text-center mt-6">
+      <div class="text-center mt-6 mb-10 animate-fadeInUp" style="animation-delay: 400ms;">
         <button
           type="submit"
-          class="inline-block w-full px-8 py-3 bg-red-600 hover:bg-red-700 text-white text-lg font-bold tracking-wide rounded-none transition"
+          class="inline-block w-full px-8 py-4 bg-red-600 hover:bg-red-700
+                 text-white text-xl font-bold tracking-wide rounded-none
+                 transition shadow-lg"
         >
           ¡Arranca!
         </button>
@@ -87,7 +94,7 @@ import MobileLayout from '../../layouts/MobileLayout.astro';
 
 <script>
   const formDatos = document.getElementById('form-datos');
-  formDatos.addEventListener('submit', () => {
+  formDatos?.addEventListener('submit', () => {
     const fd = new FormData(formDatos);
     sessionStorage.setItem('nombre', fd.get('nombre') || '');
     sessionStorage.setItem('estado', fd.get('estado') || '');

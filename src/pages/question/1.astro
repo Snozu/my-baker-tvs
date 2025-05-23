@@ -3,15 +3,25 @@ import QuestionLayout from '../../layouts/QuestionLayout.astro';
 import CreativeQuestion, { type Option } from '../../components/Notificacion';
 
 const options: Option[] = [
-  { id: 'stryker',    text: 'Voy al grano, sin rodeos y siempre en movimiento',      img: '/assets/Grano_sin_rodeos.png'  },
-  { id: 'rtr200', text: 'Soy veloz, preciso y me gusta tener todo bajo control',   img: '/assets/Veloz_preciso.png'     },
-  { id: 'ronin',     text: 'Sigo mi propio ritmo y no me gusta que me digan cómo vivir la aventura', img: '/assets/Propio_ritmo.png' },
-  { id: 'rtr310',   text: 'Me gusta sentir que tengo el poder en mis manos y dominar cada terreno', img: '/assets/Poder_dominar.png' },
-  { id: 'ntorq',    text: 'Soy ágil, moderno y me gusta moverme con flow por la ciudad', img: '/assets/Agil_moderno.png'  },
+  { id: 'stryker',  title: 'Stryker 3V',    subtitle: 'Directo y siempre en movimiento.',     img: '/assets/Grano_sin_rodeos.png' },
+  { id: 'rtr200',   title: 'RTR 200 4V',    subtitle: 'Precisión y control total.',           img: '/assets/Veloz_preciso.png' },
+  { id: 'ronin',    title: 'Ronin 250',     subtitle: 'Tu estilo, tu aventura.',              img: '/assets/Propio_ritmo.png' },
+  { id: 'rtr310',   title: 'RTR 310',       subtitle: 'Poder y dominio en cada curva.',       img: '/assets/Poder_dominar.png' },
+  { id: 'ntorq',    title: 'NTORQ RE 125',  subtitle: 'Ágil y con flow urbano.',              img: '/assets/Agil_moderno.png' },
 ];
+ 
 ---
 <QuestionLayout title={`¿Qué tipo de <span class="text-red-600">aventurero</span><br>eres?`}>
-  <CreativeQuestion client:load fieldName="q1" {options} nextUrl="/question/2" formId="form-q1" />
+  <form id="form-q1" action="/question/2" method="get" class="w-full flex flex-col gap-8 px-5">
+    <CreativeQuestion client:load fieldName="q1" {options} nextUrl="/question/2" formId="form-q1" />
+  </form>
 </QuestionLayout>
 
-
+<!-- Script que guarda en sessionStorage antes del submit -->
+<script>
+  const formQ1 = document.getElementById('form-q1');
+  formQ1.addEventListener('submit', () => {
+    const fd = new FormData(formQ1);
+    sessionStorage.setItem('q1', fd.get('q1') || '');
+  });
+</script>

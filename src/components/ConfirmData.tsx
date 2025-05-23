@@ -32,34 +32,27 @@ export default function ConfirmData() {
     setSending(true);
 
     try {
-      // 2) Convertir DataURL a Blob
-      const res = await fetch(data.photo);
-      const blob = await res.blob();
-
-      // 3) FormData con campos de texto + foto
-      const form = new FormData();
-      form.append('nombre',   data.nombre);
-      form.append('estado',   data.estado);
-      form.append('telefono', data.telefono);
-      form.append('q1',       data.q1);
-      form.append('q2',       data.q2);
-      form.append('photo',    blob, 'selfie.jpg');
-
-      // 4) POST al webhook de Make
-      const webhookUrl = 'https://hook.us2.make.com/ie7cprxmog22liwjj293tomqtnx7ftkw';
-      const webhookRes = await fetch(webhookUrl, {
-        method: 'POST',
-        body: form,
-      });
-
-      if (!webhookRes.ok) {
-        throw new Error(`HTTP ${webhookRes.status}`);
-      }
-
-      // 5) Éxito
+      // En lugar de enviar la petición a Make, simplemente redirigimos al usuario
+      // a la página de procesamiento donde se realizará la petición una sola vez
+      console.log('Redirigiendo a la página de procesamiento...');
+      
+      // Aseguramos que todos los datos estén en sessionStorage
+      sessionStorage.setItem('nombre', data.nombre);
+      sessionStorage.setItem('estado', data.estado);
+      sessionStorage.setItem('telefono', data.telefono);
+      sessionStorage.setItem('q1', data.q1);
+      sessionStorage.setItem('q2', data.q2);
+      sessionStorage.setItem('photo', data.photo);
+      
+      // Simulamos éxito y luego redirigimos
       setResult('success');
+      
+      // Redirigir después de un breve retraso para mostrar el estado de éxito
+      setTimeout(() => {
+        window.location.href = '/process';
+      }, 1000);
     } catch (err) {
-      console.error('Error enviando al webhook:', err);
+      console.error('Error en el proceso:', err);
       setResult('error');
     } finally {
       setSending(false);
@@ -100,12 +93,12 @@ export default function ConfirmData() {
         `}
       >
         {sending
-          ? 'Enviando…'
+          ? 'Preparando...' 
           : result === 'success'
-            ? '¡Enviado!'
+            ? '¡Continuando!'
             : result === 'error'
               ? 'Reintenta'
-              : '¡Regístrate con TVS!'}
+              : 'Continuar al siguiente paso'}
       </button>
     </div>
   );

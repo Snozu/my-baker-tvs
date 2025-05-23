@@ -5,19 +5,25 @@ import ShareModal from './ShareModal';
 
 export default function ResultPage() {
   const [nombre, setNombre] = useState<string>('');
+  const [telefono, setTelefono] = useState<string>('');
   const [displayUrl, setDisplayUrl] = useState<string>('');
   const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
+  const [timeoutExpired, setTimeoutExpired] = useState<boolean>(false);
 
   useEffect(() => {
     const n = sessionStorage.getItem('nombre') || '';
+    const tel = sessionStorage.getItem('telefono') || '';
     const photo = sessionStorage.getItem('photo') || '';
     const result = sessionStorage.getItem('resultUrl') || '';
     const sessionId = sessionStorage.getItem('sessionId') || crypto.randomUUID();
+    const timeout = sessionStorage.getItem('timeoutExpired') === 'true';
     
     // Guardar sessionId para usarlo más tarde
     sessionStorage.setItem('sessionId', sessionId);
     
     setNombre(n);
+    setTelefono(tel);
+    setTimeoutExpired(timeout);
     
     // Determinar la URL a mostrar
     if (result && result.length > 10) {
@@ -56,7 +62,34 @@ export default function ResultPage() {
   };
   
   if (!displayUrl) {
-    return <p class="text-center text-lg mt-10">No hay imagen para mostrar.</p>;
+    return (
+      <div class="flex flex-col items-center px-6 space-y-6 mt-10">
+        <h1 class="text-center text-2xl font-semibold">
+          ¡Ser biker va contigo, {nombre}!
+        </h1>
+        
+        <div class="bg-red-600 text-white p-4 rounded-lg mb-4 max-w-sm">
+          <p class="font-bold mb-2">Disculpa la demora</p>
+          <p class="text-sm">
+            Estamos procesando tu imagen personalizada. Debido a la alta demanda, 
+            enviaremos el resultado final por WhatsApp al número {telefono.replace(/\d{3}(\d{3})(\d{4})/, '$1-$2-$3')} 
+            tan pronto esté listo.
+          </p>
+        </div>
+        
+        <button
+          onClick={() => window.location.href = '/question/datos'}
+          class="w-full max-w-sm py-3 border border-black text-black font-medium mt-4"
+        >
+          Hagámoslo otra vez
+        </button>
+        
+        <p class="text-center text-sm mt-6 font-semibold">
+          #MiBiker<span class="text-red-600">TVS</span>
+        </p>
+        <img src="/assets/icons/TVS_ICONO.png" alt="TVS Logo" class="h-8 mt-2" />
+      </div>
+    );
   }
   
   return (
@@ -64,6 +97,17 @@ export default function ResultPage() {
       <h1 class="text-center text-2xl font-semibold">
         ¡Ser biker va contigo, {nombre}!
       </h1>
+      
+      {timeoutExpired && (
+        <div class="bg-red-600 text-white p-4 rounded-lg mb-4 max-w-sm">
+          <p class="font-bold mb-2">Disculpa la demora</p>
+          <p class="text-sm">
+            Estamos procesando tu imagen personalizada. Debido a la alta demanda, 
+            enviaremos el resultado final por WhatsApp al número {telefono.replace(/\d{3}(\d{3})(\d{4})/, '$1-$2-$3')} 
+            tan pronto esté listo.
+          </p>
+        </div>
+      )}
 
       <div class="relative w-full max-w-sm shadow-lg image-container">
         {/* Para URLs de Google Drive, usar siempre iframe */}
@@ -116,7 +160,6 @@ export default function ResultPage() {
         </button>
       </div>
       
-      <h1 class="text-2xl font-bold mb-4">¡Tu imagen está lista!</h1>
       <p class="text-center text-sm mt-6 font-semibold">
         #MiBiker<span class="text-red-600">TVS</span>
       </p>
